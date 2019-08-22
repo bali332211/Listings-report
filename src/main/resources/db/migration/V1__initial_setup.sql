@@ -23,27 +23,12 @@ CREATE TABLE locations (
   postal_code                VARCHAR(255)
 );
 
---id UUID Location identifier
---● manager_name string Manager name
---● phone string Phone number
---● address_primary string Primary address
---● address_secondary string Secondary address
---● country string Country
---● town string Town
---● postal_code string Postal code
+CREATE TABLE listing_statuses (
+  id                         SERIAL PRIMARY KEY,
+  status_name                VARCHAR(255)
+);
 
-INSERT INTO notes
-(content, timestamp, longest_palindrome_size) VALUES
-('abrakadabra', '2018-10-09 00:12:12+0100', 3);
-
---● id UUID Listing identifier
---● title                         text Listing title
---● description                   text Listing description
---● inventory_item_location_id    UUID Location id
---● listing_price                 number Listing price
---● currency                      text Currency code
---● quantity                      number Item quantity
---● listing_status                number Listing status id
---● marketplace                   number Marketplace id
---● upload_time                   date Upload time
---● owner_email_address           text Owner email address
+CREATE TABLE marketplaces (
+  id                         SERIAL PRIMARY KEY,
+  marketplace_name           VARCHAR(255)
+);
