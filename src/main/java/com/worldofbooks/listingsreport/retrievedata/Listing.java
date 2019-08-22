@@ -1,15 +1,18 @@
 package com.worldofbooks.listingsreport.retrievedata;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import java.time.Instant;
-import java.time.LocalDate;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
+@Entity
+@Table(name="listings")
 public class Listing {
 
+    @Id
     private String id;
     private String title;
     private String description;

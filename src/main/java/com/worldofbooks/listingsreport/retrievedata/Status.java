@@ -2,8 +2,15 @@ package com.worldofbooks.listingsreport.retrievedata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "statuses")
 public class Status {
 
+    @Id
     private int id;
     @JsonProperty("status_name")
     private String statusName;
