@@ -1,5 +1,5 @@
 CREATE TABLE listings (
-  id                         SERIAL PRIMARY KEY,
+  id                         VARCHAR(255) PRIMARY KEY,
   title                      VARCHAR(255),
   description                timestamp,
   FOREIGN KEY (inventory_item_location_id) REFERENCES locations (id),
@@ -13,7 +13,7 @@ CREATE TABLE listings (
 );
 
 CREATE TABLE locations (
-  id                         SERIAL PRIMARY KEY,
+  id                         VARCHAR(255) PRIMARY KEY,
   manager_name               VARCHAR(255),
   phone                      VARCHAR(255),
   address_primary            VARCHAR(255),

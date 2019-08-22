@@ -1,8 +1,11 @@
 package com.worldofbooks.listingsreport.retrievedata;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Marketplace {
 
     private int id;
+    @JsonProperty("marketplace_name")
     private String marketplaceName;
 
     public int getId() {

@@ -1,21 +1,27 @@
 package com.worldofbooks.listingsreport.retrievedata;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Location {
 
-    private int id;
+    private String id;
+    @JsonProperty("manager_name")
     private String managerName;
     private String phone;
+    @JsonProperty("address_primary")
     private String addressPrimary;
+    @JsonProperty("address_secondary")
     private String addressSecondary;
     private String country;
     private String town;
+    @JsonProperty("postal_code")
     private String postalCode;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

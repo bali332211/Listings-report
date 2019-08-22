@@ -1,26 +1,38 @@
 package com.worldofbooks.listingsreport.retrievedata;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Date;
 
 public class Listing {
 
-    private int id;
+    private String id;
     private String title;
     private String description;
-    private int inventoryItemLocationId;
+    @JsonProperty("inventory_item_location_id")
+    private String inventoryItemLocationId;
+    @JsonProperty("listing_price")
     private int listingPrice;
     private String currency;
     private int quantity;
+    @JsonProperty("listing_status")
     private int listingStatus;
     private int marketplace;
-    private Instant uploadTime;
+    @JsonProperty("upload_time")
+    @JsonDeserialize(using = MultiDateDeserializer.class)
+    private Date uploadTime;
+    @JsonProperty("owner_email_address")
     private String ownerEmailAddress;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -40,11 +52,11 @@ public class Listing {
         this.description = description;
     }
 
-    public int getInventoryItemLocationId() {
+    public String getInventoryItemLocationId() {
         return inventoryItemLocationId;
     }
 
-    public void setInventoryItemLocationId(int inventoryItemLocationId) {
+    public void setInventoryItemLocationId(String inventoryItemLocationId) {
         this.inventoryItemLocationId = inventoryItemLocationId;
     }
 
@@ -88,11 +100,11 @@ public class Listing {
         this.marketplace = marketplace;
     }
 
-    public Instant getUploadTime() {
+    public Date getUploadTime() {
         return uploadTime;
     }
 
-    public void setUploadTime(Instant uploadTime) {
+    public void setUploadTime(Date uploadTime) {
         this.uploadTime = uploadTime;
     }
 
@@ -102,5 +114,18 @@ public class Listing {
 
     public void setOwnerEmailAddress(String ownerEmailAddress) {
         this.ownerEmailAddress = ownerEmailAddress;
+    }
+
+    @Override
+    public String toString() {
+        return getId() + " " +
+            getCurrency() + " " +
+            getDescription() + " " +
+            getUploadTime() + " " +
+            getListingPrice() + " " +
+            getInventoryItemLocationId() + " " +
+            getOwnerEmailAddress() + " " +
+            getMarketplace();
+
     }
 }

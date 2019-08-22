@@ -1,8 +1,11 @@
 package com.worldofbooks.listingsreport.retrievedata;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Status {
 
     private int id;
+    @JsonProperty("status_name")
     private String statusName;
 
     public int getId() {
