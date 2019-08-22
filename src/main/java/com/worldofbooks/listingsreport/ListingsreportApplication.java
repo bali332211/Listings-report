@@ -10,4 +10,5 @@ public class ListingsreportApplication {
 		SpringApplication.run(ListingsreportApplication.class, args);
 	}
 
+
 }
