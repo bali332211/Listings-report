@@ -42,7 +42,7 @@ public class MultiDateDeserializer extends StdDeserializer<Date> {
             } catch (ParseException e) {
             }
         }
-        throw new JsonParseException(jp, "Unparseable date: \"" + date + "\". Supported formats: " + Arrays.toString(DATE_FORMATS));
+        throw new JsonParseException(jp, "Unable to parse date: \"" + date + "\". Supported formats: " + Arrays.toString(DATE_FORMATS));
     }
 }
 

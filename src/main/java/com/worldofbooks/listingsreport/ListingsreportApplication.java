@@ -16,9 +16,7 @@ import java.util.List;
 public class ListingsreportApplication implements CommandLineRunner  {
 
 	@Autowired
-	private ApiHandler apiHandler;
-	@Autowired
-	private RestTemplateBuilder restTemplateBuilder;
+	private ReportUtil reportUtil;
 	@Autowired
 	private DatabaseService databaseService;
 
@@ -26,12 +24,8 @@ public class ListingsreportApplication implements CommandLineRunner  {
 		SpringApplication.run(ListingsreportApplication.class, args);
 	}
 
-
 	@Override
 	public void run(String... args) throws Exception {
-		RestTemplate restTemplate = apiHandler.restTemplate(restTemplateBuilder);
-		List<Listing> listings = apiHandler.getListings(restTemplate);
-
-		databaseService.saveListings(listings);
+		databaseService.initStatuses();
 	}
 }
