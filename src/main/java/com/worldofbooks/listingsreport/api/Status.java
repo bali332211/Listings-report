@@ -1,4 +1,4 @@
-package com.worldofbooks.listingsreport.retrievedata;
+package com.worldofbooks.listingsreport.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

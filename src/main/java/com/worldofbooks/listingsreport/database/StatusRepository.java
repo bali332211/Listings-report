@@ -1,6 +1,6 @@
 package com.worldofbooks.listingsreport.database;
 
-import com.worldofbooks.listingsreport.retrievedata.Status;
+import com.worldofbooks.listingsreport.api.Status;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

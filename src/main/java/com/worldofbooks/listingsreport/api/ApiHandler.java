@@ -1,10 +1,6 @@
-package com.worldofbooks.listingsreport.retrievedata;
+package com.worldofbooks.listingsreport.api;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -32,32 +28,12 @@ public class ApiHandler {
             null,
             new ParameterizedTypeReference<List<T>>() {
                 public Type getType() {
-                    return new MyParameterizedTypeImpl((ParameterizedType) super.getType(), new Type[] {tClass});
+                    return new MyParameterizedTypeImpl((ParameterizedType) super.getType(), new Type[]{tClass});
                 }
             });
         List<T> entities = response.getBody();
         return entities;
     }
-
-//    @Bean
-//    public List<Listing> getListings(RestTemplate restTemplate) {
-//        ResponseEntity<List<Listing>> response = restTemplate.exchange(
-//            "https://my.api.mockaroo.com/listing?key=63304c70",
-//            HttpMethod.GET,
-//            null,
-//            new ParameterizedTypeReference<List<Listing>>() {
-//            });
-//        List<Listing> listings = response.getBody();
-//        return listings;
-//
-////        return args -> {
-////            Quote quote = restTemplate.getForObject(
-////                "https://gturnquist-quoters.cfapps.io/api/random", Quote.class);
-////            log.info(quote.toString());
-////        };
-//
-//    }
-
 
     public static final class MyParameterizedTypeImpl implements ParameterizedType {
         private ParameterizedType delegate;

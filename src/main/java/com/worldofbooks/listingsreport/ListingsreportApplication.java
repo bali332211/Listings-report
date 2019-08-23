@@ -20,9 +20,6 @@ public class ListingsreportApplication implements CommandLineRunner  {
 
 	@Override
 	public void run(String... args) throws Exception {
-		databaseService.initStatuses();
-		databaseService.initLocations();
-		databaseService.initMarketplaces();
-		databaseService.initListings();
+		databaseService.initDatabase();
 	}
 }

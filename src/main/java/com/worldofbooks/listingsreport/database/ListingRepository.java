@@ -2,7 +2,7 @@ package com.worldofbooks.listingsreport.database;
 
 import java.util.List;
 
-import com.worldofbooks.listingsreport.retrievedata.Listing;
+import com.worldofbooks.listingsreport.api.Listing;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

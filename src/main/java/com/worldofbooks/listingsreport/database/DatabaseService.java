@@ -1,6 +1,6 @@
 package com.worldofbooks.listingsreport.database;
 
-import com.worldofbooks.listingsreport.retrievedata.*;
+import com.worldofbooks.listingsreport.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,11 @@ public class DatabaseService {
     private ApiHandler apiHandler;
 
     @Autowired
-    public DatabaseService(ListingRepository listingRepository, StatusRepository statusRepository, LocationRepository locationRepository, MarketplaceRepository marketplaceRepository, ApiHandler apiHandler) {
+    public DatabaseService(ListingRepository listingRepository,
+                           StatusRepository statusRepository,
+                           LocationRepository locationRepository,
+                           MarketplaceRepository marketplaceRepository,
+                           ApiHandler apiHandler) {
         this.listingRepository = listingRepository;
         this.statusRepository = statusRepository;
         this.locationRepository = locationRepository;
@@ -25,7 +29,22 @@ public class DatabaseService {
         this.apiHandler = apiHandler;
     }
 
-    public void initListings() {
+    public void initDatabase() {
+        initEntities("https://my.api.mockaroo.com/listingStatus?key=63304c70", Status.class, statusRepository);
+        initEntities("https://my.api.mockaroo.com/location?key=63304c70", Location.class, locationRepository);
+        initEntities("https://my.api.mockaroo.com/marketplace?key=63304c70", Marketplace.class, marketplaceRepository);
+        initListings();
+    }
+
+    private <T> void initEntities(String url, Class<T> tClass, CrudRepository<T, ?> repository) {
+        List<T> entities = apiHandler.getEntitiesFromAPI(url, tClass);
+
+        for (T entity : entities) {
+            repository.save(entity);
+        }
+    }
+
+    private void initListings() {
         List<Listing> listings = apiHandler.getEntitiesFromAPI("https://my.api.mockaroo.com/listing?key=63304c70", Listing.class);
 
         for (Listing listing : listings) {
@@ -34,37 +53,4 @@ public class DatabaseService {
             }
         }
     }
-
-    public void initStatuses() {
-        List<Status> statuses = apiHandler.getEntitiesFromAPI("https://my.api.mockaroo.com/listingStatus?key=63304c70", Status.class);
-
-        for (Status status : statuses) {
-            statusRepository.save(status);
-        }
-    }
-
-    public void initLocations() {
-        List<Location> locations = apiHandler.getEntitiesFromAPI("https://my.api.mockaroo.com/location?key=63304c70", Location.class);
-
-        for (Location location : locations) {
-            locationRepository.save(location);
-        }
-    }
-
-    public void initMarketplaces() {
-        List<Marketplace> marketplaces = apiHandler.getEntitiesFromAPI("https://my.api.mockaroo.com/marketplace?key=63304c70", Marketplace.class);
-
-        for (Marketplace marketplace : marketplaces) {
-            marketplaceRepository.save(marketplace);
-        }
-    }
-
-    public <T> void initEntities(String url, Class<T> tClass, CrudRepository<T, ?> repository) {
-        List<T> entities = apiHandler.getEntitiesFromAPI(url, tClass);
-
-        for (T entity: entities) {
-            repository.save(entity);
-        }
-    }
-
 }
