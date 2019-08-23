@@ -7,12 +7,12 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class ListingReporter {
+public class DatabaseService {
 
     private ListingRepository listingRepository;
 
     @Autowired
-    public ListingReporter(ListingRepository listingRepository) {
+    public DatabaseService(ListingRepository listingRepository) {
         this.listingRepository = listingRepository;
     }
 
@@ -21,7 +21,6 @@ public class ListingReporter {
             if (listing.getId() != null) {
                 listingRepository.save(listing);
             }
-
         }
     }
 

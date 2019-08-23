@@ -1,7 +1,6 @@
 package com.worldofbooks.listingsreport;
 
-import com.worldofbooks.listingsreport.database.ListingReporter;
-import com.worldofbooks.listingsreport.database.ListingRepository;
+import com.worldofbooks.listingsreport.database.DatabaseService;
 import com.worldofbooks.listingsreport.retrievedata.ApiHandler;
 import com.worldofbooks.listingsreport.retrievedata.Listing;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ public class ListingsreportApplication implements CommandLineRunner  {
 	@Autowired
 	private RestTemplateBuilder restTemplateBuilder;
 	@Autowired
-	private ListingReporter listingReporter;
+	private DatabaseService databaseService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ListingsreportApplication.class, args);
@@ -33,6 +32,6 @@ public class ListingsreportApplication implements CommandLineRunner  {
 		RestTemplate restTemplate = apiHandler.restTemplate(restTemplateBuilder);
 		List<Listing> listings = apiHandler.getListings(restTemplate);
 
-		listingReporter.saveListings(listings);
+		databaseService.saveListings(listings);
 	}
 }
