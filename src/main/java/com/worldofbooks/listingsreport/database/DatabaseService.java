@@ -5,9 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class DatabaseService {
@@ -52,7 +50,7 @@ public class DatabaseService {
     private void initListings() {
         List<Listing> listings = apiHandler.getEntitiesFromAPI("https://my.api.mockaroo.com/listing?key=63304c70", Listing.class);
 
-        List<Listing> validatedListings = validationService.validateListing(listings);
+        List<Listing> validatedListings = validationService.validateListings(listings);
 
         for (Listing listing : validatedListings) {
             if (listing.getId() != null) {

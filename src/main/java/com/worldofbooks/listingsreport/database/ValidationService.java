@@ -12,42 +12,38 @@ import java.util.*;
 @Service
 public class ValidationService {
 
-    public List<Listing> validateListing(List<Listing> listings) {
+    public List<Listing> validateListings(List<Listing> listings) {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
 
         List<Listing> validatedListings = new ArrayList<>();
 
+        int sum = 0;
+        int valid = 0;
         for (Listing listing : listings) {
             Set<ConstraintViolation<Listing>> violations = validator.validate(listing);
 
-            for (ConstraintViolation<Listing> violation : violations) {
-                System.out.print("Property: ");
-                System.out.print(violation.getPropertyPath());
-                System.out.print(" value: ");
-                System.out.print(violation.getInvalidValue());
-                System.out.print(" error: ");
-                System.out.print(violation.getMessage());
+            if (violations.isEmpty()) {
+                validatedListings.add(listing);
+                valid++;
+            } else {
                 System.out.print(" id: ");
                 System.out.print(listing.getId());
                 System.out.print(" marketplace: ");
                 System.out.println(listing.getMarketplace());
-            }
-
-            if(violations.isEmpty()) {
-                validatedListings.add(listing);
+                for (ConstraintViolation<Listing> violation : violations) {
+                    System.out.print(violation.getPropertyPath());
+                    System.out.print(" ");
+                    System.out.print(violation.getInvalidValue());
+                    System.out.print(" error: ");
+                    System.out.println(violation.getMessage());
+                }
+                sum++;
             }
         }
+        System.out.println("invalid listings: " + sum);
+        System.out.println("valid listings: " + valid);
         return validatedListings;
-    }
-
-    public boolean isUUID(String string) {
-        try {
-            UUID.fromString(string);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
     }
 
     private static final class InvalidListing {

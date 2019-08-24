@@ -2,10 +2,12 @@ package com.worldofbooks.listingsreport.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.worldofbooks.listingsreport.database.UUIDConstraint;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -17,11 +19,15 @@ public class Listing {
 
     @Id
     @NotNull
+    @UUIDConstraint
     private String id;
+    @NotNull
     private String title;
+    @NotNull
     private String description;
-    @JsonProperty("inventory_item_location_id")
-    private String inventoryItemLocationId;
+    @JsonProperty("location_id")
+    @NotNull
+    private String locationId;
     @JsonProperty("listing_price")
     @NotNull
     @Min(value = 1, message = "only above 0 allowed")
@@ -29,14 +35,21 @@ public class Listing {
     @NotNull
     @Size(min = 3, max = 3, message = "currency length needs to be 3")
     private String currency;
+    @NotNull
+    @Min(value = 1, message = "only above 0 allowed")
     private int quantity;
     @JsonProperty("listing_status")
+    @NotNull
     private int listingStatus;
+    @NotNull
     private int marketplace;
     @JsonProperty("upload_time")
     @JsonDeserialize(using = MultiDateDeserializer.class)
+    @NotNull
     private Date uploadTime;
     @JsonProperty("owner_email_address")
+    @NotNull
+    @Email
     private String ownerEmailAddress;
 
     public String getId() {
@@ -63,12 +76,12 @@ public class Listing {
         this.description = description;
     }
 
-    public String getInventoryItemLocationId() {
-        return inventoryItemLocationId;
+    public String getLocationId() {
+        return locationId;
     }
 
-    public void setInventoryItemLocationId(String inventoryItemLocationId) {
-        this.inventoryItemLocationId = inventoryItemLocationId;
+    public void setLocationId(String locationId) {
+        this.locationId = locationId;
     }
 
     public int getListingPrice() {
@@ -134,7 +147,7 @@ public class Listing {
             getDescription() + " " +
             getUploadTime() + " " +
             getListingPrice() + " " +
-            getInventoryItemLocationId() + " " +
+            getLocationId() + " " +
             getOwnerEmailAddress() + " " +
             getMarketplace();
 
