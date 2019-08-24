@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
@@ -13,13 +16,18 @@ import java.util.Date;
 public class Listing {
 
     @Id
+    @NotNull
     private String id;
     private String title;
     private String description;
     @JsonProperty("inventory_item_location_id")
     private String inventoryItemLocationId;
     @JsonProperty("listing_price")
+    @NotNull
+    @Min(value = 1, message = "only above 0 allowed")
     private int listingPrice;
+    @NotNull
+    @Size(min = 3, max = 3, message = "currency length needs to be 3")
     private String currency;
     private int quantity;
     @JsonProperty("listing_status")

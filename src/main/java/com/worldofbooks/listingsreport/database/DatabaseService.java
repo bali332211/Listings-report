@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class DatabaseService {
@@ -15,18 +17,21 @@ public class DatabaseService {
     private LocationRepository locationRepository;
     private MarketplaceRepository marketplaceRepository;
     private ApiHandler apiHandler;
+    private ValidationService validationService;
 
     @Autowired
     public DatabaseService(ListingRepository listingRepository,
                            StatusRepository statusRepository,
                            LocationRepository locationRepository,
                            MarketplaceRepository marketplaceRepository,
-                           ApiHandler apiHandler) {
+                           ApiHandler apiHandler,
+                           ValidationService validationService) {
         this.listingRepository = listingRepository;
         this.statusRepository = statusRepository;
         this.locationRepository = locationRepository;
         this.marketplaceRepository = marketplaceRepository;
         this.apiHandler = apiHandler;
+        this.validationService = validationService;
     }
 
     public void initDatabase() {
@@ -47,10 +52,13 @@ public class DatabaseService {
     private void initListings() {
         List<Listing> listings = apiHandler.getEntitiesFromAPI("https://my.api.mockaroo.com/listing?key=63304c70", Listing.class);
 
-        for (Listing listing : listings) {
+        List<Listing> validatedListings = validationService.validateListing(listings);
+
+        for (Listing listing : validatedListings) {
             if (listing.getId() != null) {
                 listingRepository.save(listing);
             }
         }
     }
+
 }
