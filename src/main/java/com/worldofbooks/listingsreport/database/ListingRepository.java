@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ListingRepository extends CrudRepository<Listing, String> {
-    List<Listing> findAll();
+
 }

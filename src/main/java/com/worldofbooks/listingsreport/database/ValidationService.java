@@ -1,57 +1,69 @@
 package com.worldofbooks.listingsreport.database;
 
+import com.worldofbooks.listingsreport.ReportUtil;
 import com.worldofbooks.listingsreport.api.Listing;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.util.*;
 
 @Service
 public class ValidationService {
 
-    public List<Listing> validateListings(List<Listing> listings) {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
+    private Validator validator;
+    private ReportUtil reportUtil;
 
+    @Autowired
+    public ValidationService(Validator validator, ReportUtil reportUtil) {
+        this.validator = validator;
+        this.reportUtil = reportUtil;
+    }
+
+    public List<Listing> validateListings(List<Listing> listings) {
         List<Listing> validatedListings = new ArrayList<>();
 
-        int sum = 0;
-        int valid = 0;
-        for (Listing listing : listings) {
+        listings.forEach(listing -> {
             Set<ConstraintViolation<Listing>> violations = validator.validate(listing);
 
             if (violations.isEmpty()) {
                 validatedListings.add(listing);
-                valid++;
+                reportUtil.collectReportData(listing);
             } else {
-                System.out.print(" id: ");
-                System.out.print(listing.getId());
-                System.out.print(" marketplace: ");
-                System.out.println(listing.getMarketplace());
-                for (ConstraintViolation<Listing> violation : violations) {
-                    System.out.print(violation.getPropertyPath());
-                    System.out.print(" ");
-                    System.out.print(violation.getInvalidValue());
-                    System.out.print(" error: ");
-                    System.out.println(violation.getMessage());
-                }
-                sum++;
+                writeViolationsToCSV(violations, listing);
             }
-        }
-        System.out.println("invalid listings: " + sum);
-        System.out.println("valid listings: " + valid);
+        });
+
+
         return validatedListings;
     }
 
-    private static final class InvalidListing {
+    private void writeViolationsToCSV(Set<ConstraintViolation<Listing>> violations, Listing listing) {
+        List<ViolationDto> violationDtos = getViolationDtosForCSV(violations, listing);
+
+    }
+
+    private List<ViolationDto> getViolationDtosForCSV(Set<ConstraintViolation<Listing>> violations, Listing listing) {
+        List<ViolationDto> violationDtos = new ArrayList<>();
+
+        violations.forEach(violation -> {
+            ViolationDto violationDto = new ViolationDto(
+                listing.getId(),
+                listing.getMarketplace(),
+                violation.getPropertyPath().toString());
+
+            violationDtos.add(violationDto);
+        });
+        return violationDtos;
+    }
+
+    private static final class ViolationDto {
         private final String listingId;
-        private final String marketplaceName;
+        private final int marketplaceName;
         private final String fieldName;
 
-        public InvalidListing(String listingId, String marketplaceName, String fieldName) {
+        public ViolationDto(String listingId, int marketplaceName, String fieldName) {
             this.listingId = listingId;
             this.marketplaceName = marketplaceName;
             this.fieldName = fieldName;
@@ -61,7 +73,7 @@ public class ValidationService {
             return listingId;
         }
 
-        public String getMarketplaceName() {
+        public int getMarketplaceName() {
             return marketplaceName;
         }
 
