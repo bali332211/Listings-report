@@ -2,6 +2,7 @@ package com.worldofbooks.listingsreport.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.worldofbooks.listingsreport.database.LocationReference;
 import com.worldofbooks.listingsreport.database.UUIDConstraint;
 
 import javax.persistence.Entity;
@@ -25,6 +26,7 @@ public class Listing {
     private String title;
     @NotNull
     private String description;
+    @LocationReference
     @JsonProperty("location_id")
     @NotNull
     private String locationId;
