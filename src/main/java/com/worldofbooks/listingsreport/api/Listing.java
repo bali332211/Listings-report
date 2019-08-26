@@ -2,7 +2,6 @@ package com.worldofbooks.listingsreport.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.worldofbooks.listingsreport.database.LocationReference;
 import com.worldofbooks.listingsreport.database.UUIDConstraint;
 
 import javax.persistence.Entity;
@@ -26,12 +25,11 @@ public class Listing {
     private String title;
     @NotNull
     private String description;
-    @LocationReference
+    @NotNull
     @JsonProperty("location_id")
-    @NotNull
     private String locationId;
-    @JsonProperty("listing_price")
     @NotNull
+    @JsonProperty("listing_price")
     @Min(value = 1, message = "only above 0 allowed")
     private int listingPrice;
     @NotNull
@@ -40,18 +38,18 @@ public class Listing {
     @NotNull
     @Min(value = 1, message = "only above 0 allowed")
     private int quantity;
-    @JsonProperty("listing_status")
     @NotNull
+    @JsonProperty("listing_status")
     private int listingStatus;
     @NotNull
     private int marketplace;
+    @NotNull
     @JsonProperty("upload_time")
     @JsonDeserialize(using = MultiDateDeserializer.class)
-    @NotNull
     private Date uploadTime;
-    @JsonProperty("owner_email_address")
     @NotNull
     @Email
+    @JsonProperty("owner_email_address")
     private String ownerEmailAddress;
 
     public String getId() {

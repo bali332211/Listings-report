@@ -1,121 +1,121 @@
 package com.worldofbooks.listingsreport;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.worldofbooks.listingsreport.api.Listing;
 import com.worldofbooks.listingsreport.api.Marketplace;
 import com.worldofbooks.listingsreport.database.MarketplaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
-public class ReportUtil {
+public class ReportUtil implements ReportProcessor{
 
     private MarketplaceRepository marketplaceRepository;
 
-    private final ReportDto reportDto;
-    private final MarketplaceData marketplaceData;
-    private final int ebayId;
-    private final int amazonId;
+    @Value(value = "worldofbooks.ebay.name")
+    private String ebayName;
+    @Value(value = "worldofbooks.amazon.name")
+    private String amazonName;
 
     @Autowired
     public ReportUtil(MarketplaceRepository marketplaceRepository) {
         this.marketplaceRepository = marketplaceRepository;
-
-        Marketplace ebay = marketplaceRepository.findByMarketplaceName("Ebay");
-        this.ebayId = ebay.getId();
-        Marketplace amazon = marketplaceRepository.findByMarketplaceName("Amazon");
-        this.amazonId = amazon.getId();
-        this.reportDto = new ReportDto();
-        this.marketplaceData = new MarketplaceData(ebayId, amazonId);
     }
 
-    public void collectReportData(Listing listing) {
-        MonthlyReport[] monthlyReports = new MonthlyReport[12];
+    @Override
+    public void collectReportData(List<Listing> listings) {
+        Marketplace ebay = marketplaceRepository.findByMarketplaceName(ebayName);
+        Marketplace amazon = marketplaceRepository.findByMarketplaceName(amazonName);
+        int ebayId = ebay.getId();
+        int amazonId = amazon.getId();
+        int listingCount = listings.size();
 
-        reportDto.incrementListingCount();
+        MarketplaceData marketplaceData = new MarketplaceData(ebayId, amazonId);
+        ReportDto reportDto = new ReportDto();
+        MonthInReport[] monthsInReport = new MonthInReport[12];
 
-        marketplaceData.updateMarketPlaceDataWithListing(listing);
+        reportDto.setListingCount(listingCount);
 
-    }
-
-    private static final class ReportDto {
-        private int listingCount = 0;
-        private int totalEbayListingCount = 0;
-        private int totalAmazonListingCount = 0;
-        private long totalEbayListingPrice = 0;
-        private long totalAmazonListingPrice = 0;
-        private long averageEbayListingPrice = 0;
-        private long averageAmazonListingPrice = 0;
-
-        private void incrementListingCount() {
-            listingCount++;
+        for (Listing listing : listings) {
+            int month = getMonthOfUploadTime(listing);
+            updateMonthlyReports(month, listing, monthsInReport);
+            marketplaceData.updateMarketPlaceDataWithListing(listing);
         }
+        marketplaceData.setAverages();
+
+
+    }
+
+    private void updateMonthlyReports(int month, Listing listing, MonthInReport[] monthsInReport) {
+        MonthInReport monthInReport = monthsInReport[month];
+        if (monthInReport == null) {
+            monthInReport = new MonthInReport();
+        }
+        MonthlyReport monthlyReport = monthInReport.monthlyReport;
+
+        monthlyReport.updateMarketPlaceDataWithListing(listing);
+    }
+
+    private int getMonthOfUploadTime(Listing listing) {
+        String uploadTime = listing.getUploadTime().toString();
+        String[] uploadTimeSplit = uploadTime.split("/");
+        String month = uploadTimeSplit[0];
+        return Integer.parseInt(month);
+    }
+
+//    private int getMonthOfUploadTime(Listing listing) {
+//        Date uploadTime = listing.getUploadTime();
+//        LocalDate localDateUploadTime = uploadTime.toInstant()
+//            .atZone(ZoneId.systemDefault())
+//            .toLocalDate();
+//        return localDateUploadTime.getMonth().getValue();
+//    }
+
+    private static final class ReportDto extends MarketplaceData {
+        private int listingCount = 0;
+        private List<MonthInReport> monthsInReport = new ArrayList<>();
 
         public int getListingCount() {
             return listingCount;
         }
 
-        public int getTotalEbayListingCount() {
-            return totalEbayListingCount;
-        }
-
-        public int getTotalAmazonListingCount() {
-            return totalAmazonListingCount;
-        }
-
-        public long getTotalEbayListingPrice() {
-            return totalEbayListingPrice;
-        }
-
-        public long getTotalAmazonListingPrice() {
-            return totalAmazonListingPrice;
-        }
-
-        public long getAverageEbayListingPrice() {
-            return averageEbayListingPrice;
-        }
-
-        public long getAverageAmazonListingPrice() {
-            return averageAmazonListingPrice;
+        public void setListingCount(int listingCount) {
+            this.listingCount = listingCount;
         }
     }
 
-    private static final class MarketplaceData {
+    private static class MarketplaceData {
         private int totalEbayListingCount = 0;
         private int totalAmazonListingCount = 0;
         private long totalEbayListingPrice = 0;
         private long totalAmazonListingPrice = 0;
         private long averageEbayListingPrice = 0;
         private long averageAmazonListingPrice = 0;
+        private int ebayId;
+        private int amazonId;
 
-        private final int ebayId;
-        private final int amazonId;
+        public MarketplaceData() {
+        }
 
         public MarketplaceData(int ebayId, int amazonId) {
             this.ebayId = ebayId;
             this.amazonId = amazonId;
         }
 
-        private void updateMarketPlaceDataWithListing(Listing listing) {
+        public void updateMarketPlaceDataWithListing(Listing listing) {
             int marketplaceId = listing.getMarketplace();
             long listingPrice = listing.getListingPrice();
 
-            incrementMarketplaceListingCount(marketplaceId);
-            addPriceToMarketplaceListingPrice(listingPrice, marketplaceId);
-        }
-
-        private void incrementMarketplaceListingCount(int id) {
-            if (id == ebayId) {
+            if (marketplaceId == ebayId) {
                 incrementEbayListingCount();
-            } else if (id == amazonId) {
+                addPriceToEbayListingPrice(listingPrice);
+            } else if (marketplaceId == amazonId) {
                 incrementAmazonListingCount();
-            }
-        }
-
-        private void addPriceToMarketplaceListingPrice(long price, int id) {
-            if (id == ebayId) {
-                addPriceToEbayListingPrice(price);
-            } else if (id == amazonId) {
-                addPriceToAmazonListingPrice(price);
+                addPriceToAmazonListingPrice(listingPrice);
             }
         }
 
@@ -141,11 +141,14 @@ public class ReportUtil {
         }
     }
 
-    private static final class MonthlyReport {
-        private final int month;
-
-        public MonthlyReport(int month) {
-            this.month = month;
-        }
+    private static final class MonthInReport {
+        @JsonProperty("month_name")
+        private MonthlyReport monthlyReport = new MonthlyReport();
     }
+
+    private static final class MonthlyReport extends MarketplaceData {
+
+    }
+
+
 }
