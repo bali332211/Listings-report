@@ -9,13 +9,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @Component
-public class ReportUtil implements ReportProcessor{
+public class ReportUtil implements ReportProcessor {
 
     private MarketplaceRepository marketplaceRepository;
 
@@ -37,26 +36,42 @@ public class ReportUtil implements ReportProcessor{
         int amazonId = amazon.getId();
         int listingCount = listings.size();
 
-        MarketplaceData marketplaceData = new MarketplaceData(ebayId, amazonId);
-        ReportDto reportDto = new ReportDto();
+        ReportDto reportDto = new ReportDto(ebayId, amazonId);
         MonthInReport[] monthsInReport = new MonthInReport[12];
+        HashMap<String, Integer> emailCounts = new HashMap<>();
 
         reportDto.setListingCount(listingCount);
 
         for (Listing listing : listings) {
-            if(listing.getUploadTime() != null) {
+            if (listing.getUploadTime() != null) {
                 int month = getMonthOfUploadTime(listing);
-                updateMonthlyReports(month, listing, monthsInReport);
+                updateMonthlyReports(month, listing, monthsInReport, ebayId, amazonId);
             }
-            marketplaceData.updateMarketPlaceDataWithListing(listing);
+            reportDto.updateMarketPlaceDataWithListing(listing);
+
+            String email = listing.getOwnerEmailAddress();
+            addEmailToHashMap(email, emailCounts);
         }
-        marketplaceData.setAverages();
+
+        reportDto.setAverages();
+        for (MonthInReport monthInReport : monthsInReport) {
+            monthInReport.monthlyReport.setAverages();
+        }
     }
 
-    private void updateMonthlyReports(int month, Listing listing, MonthInReport[] monthsInReport) {
+    private void addEmailToHashMap(String email, HashMap<String, Integer> map) {
+        map.compute(email, (k, v) -> {
+            if (v != null) {
+                return v + 1;
+            }
+            return 1;
+        });
+    }
+
+    private void updateMonthlyReports(int month, Listing listing, MonthInReport[] monthsInReport, int ebayId, int amazonId) {
         MonthInReport monthInReport = monthsInReport[month - 1];
         if (monthInReport == null) {
-            monthInReport = new MonthInReport();
+            monthInReport = new MonthInReport(new MonthlyReport(ebayId, amazonId));
         }
         MonthlyReport monthlyReport = monthInReport.monthlyReport;
 
@@ -68,9 +83,13 @@ public class ReportUtil implements ReportProcessor{
         return localDateUploadTime.getMonth().getValue();
     }
 
-    private static final class ReportDto extends MarketplaceData {
+    public static final class ReportDto extends MarketplaceData {
         private int listingCount = 0;
         private List<MonthInReport> monthsInReport = new ArrayList<>();
+
+        public ReportDto(int ebayId, int amazonId) {
+            super(ebayId, amazonId);
+        }
 
         public int getListingCount() {
             return listingCount;
@@ -90,6 +109,7 @@ public class ReportUtil implements ReportProcessor{
         private long averageAmazonListingPrice = 0;
         private int ebayId;
         private int amazonId;
+        private String bestListerEmail = "";
 
         public MarketplaceData() {
         }
@@ -128,19 +148,30 @@ public class ReportUtil implements ReportProcessor{
             totalAmazonListingPrice += price;
         }
 
-        private void setAverages() {
+        public void setAverages() {
             averageEbayListingPrice = totalEbayListingCount != 0 ? totalEbayListingPrice / totalEbayListingCount : 0;
             averageAmazonListingPrice = totalAmazonListingCount != 0 ? totalAmazonListingPrice / totalAmazonListingCount : 0;
+        }
+
+        public void setBestListerEmail(String email) {
+            bestListerEmail = email;
         }
     }
 
     private static final class MonthInReport {
         @JsonProperty("month_name")
-        private MonthlyReport monthlyReport = new MonthlyReport();
+        private MonthlyReport monthlyReport;
+
+        public MonthInReport(MonthlyReport monthlyReport) {
+            this.monthlyReport = monthlyReport;
+        }
     }
 
     private static final class MonthlyReport extends MarketplaceData {
 
+        public MonthlyReport(int ebayId, int amazonId) {
+            super(ebayId, amazonId);
+        }
     }
 
 

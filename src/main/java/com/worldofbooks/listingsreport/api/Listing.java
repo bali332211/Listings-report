@@ -43,8 +43,8 @@ public class Listing {
     private int listingStatus;
     @NotNull
     private int marketplace;
-    @JsonProperty("upload_time")
     @JsonDeserialize(using = MultiDateDeserializer.class)
+    @JsonProperty("upload_time")
     private LocalDate uploadTime;
     @NotNull
     @Email
