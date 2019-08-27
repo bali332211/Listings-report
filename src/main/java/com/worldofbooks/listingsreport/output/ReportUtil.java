@@ -1,6 +1,7 @@
 package com.worldofbooks.listingsreport.output;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import com.worldofbooks.listingsreport.api.Listing;
 import com.worldofbooks.listingsreport.api.Marketplace;
 import com.worldofbooks.listingsreport.database.MarketplaceRepository;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,6 +17,7 @@ import java.util.List;
 public class ReportUtil implements ReportProcessor {
 
     private MarketplaceRepository marketplaceRepository;
+    private FileHandlerJSON fileHandlerJSON;
 
     @Value(value = "${worldofbooks.ebay.name}")
     private String ebayName;
@@ -24,8 +25,9 @@ public class ReportUtil implements ReportProcessor {
     private String amazonName;
 
     @Autowired
-    public ReportUtil(MarketplaceRepository marketplaceRepository) {
+    public ReportUtil(MarketplaceRepository marketplaceRepository, FileHandlerJSON fileHandlerJSON) {
         this.marketplaceRepository = marketplaceRepository;
+        this.fileHandlerJSON = fileHandlerJSON;
     }
 
     @Override
@@ -36,7 +38,7 @@ public class ReportUtil implements ReportProcessor {
         int amazonId = amazon.getId();
         int listingCount = listings.size();
 
-        ReportDto reportDto = new ReportDto(ebayId, amazonId);
+        ReportDto reportDto = new ReportDto();
         MonthInReport[] monthsInReport = new MonthInReport[12];
         HashMap<String, Integer> emailCounts = new HashMap<>();
 
@@ -47,7 +49,7 @@ public class ReportUtil implements ReportProcessor {
                 int month = getMonthOfUploadTime(listing);
                 updateMonthlyReports(month, listing, monthsInReport, ebayId, amazonId);
             }
-            reportDto.updateMarketPlaceDataWithListing(listing);
+            reportDto.updateMarketPlaceDataWithListing(listing, ebayId, amazonId);
 
             String email = listing.getOwnerEmailAddress();
             addEmailToHashMap(email, emailCounts);
@@ -55,8 +57,13 @@ public class ReportUtil implements ReportProcessor {
 
         reportDto.setAverages();
         for (MonthInReport monthInReport : monthsInReport) {
-            monthInReport.monthlyReport.setAverages();
+            if(monthInReport != null) {
+                monthInReport.monthlyReport.setAverages();
+            }
         }
+        reportDto.setMonthsInReport(monthsInReport);
+
+        fileHandlerJSON.writeDtoToFile(reportDto);
     }
 
     private void addEmailToHashMap(String email, HashMap<String, Integer> map) {
@@ -71,11 +78,11 @@ public class ReportUtil implements ReportProcessor {
     private void updateMonthlyReports(int month, Listing listing, MonthInReport[] monthsInReport, int ebayId, int amazonId) {
         MonthInReport monthInReport = monthsInReport[month - 1];
         if (monthInReport == null) {
-            monthInReport = new MonthInReport(new MonthlyReport(ebayId, amazonId));
+            monthInReport = new MonthInReport(new MonthlyReport());
         }
         MonthlyReport monthlyReport = monthInReport.monthlyReport;
 
-        monthlyReport.updateMarketPlaceDataWithListing(listing);
+        monthlyReport.updateMarketPlaceDataWithListing(listing, ebayId, amazonId);
     }
 
     private int getMonthOfUploadTime(Listing listing) {
@@ -84,12 +91,10 @@ public class ReportUtil implements ReportProcessor {
     }
 
     public static final class ReportDto extends MarketplaceData {
+        @SerializedName(value = "Total listing count")
         private int listingCount = 0;
-        private List<MonthInReport> monthsInReport = new ArrayList<>();
-
-        public ReportDto(int ebayId, int amazonId) {
-            super(ebayId, amazonId);
-        }
+        @SerializedName(value = "Monthly reports")
+        private MonthInReport[] monthsInReport = new MonthInReport[12];
 
         public int getListingCount() {
             return listingCount;
@@ -98,28 +103,36 @@ public class ReportUtil implements ReportProcessor {
         public void setListingCount(int listingCount) {
             this.listingCount = listingCount;
         }
+
+        public MonthInReport[] getMonthsInReport() {
+            return monthsInReport;
+        }
+
+        public void setMonthsInReport(MonthInReport[] monthsInReport) {
+            this.monthsInReport = monthsInReport;
+        }
     }
 
     private static class MarketplaceData {
+        @SerializedName(value = "Total eBay listing count")
         private int totalEbayListingCount = 0;
-        private int totalAmazonListingCount = 0;
+        @SerializedName(value = "Total eBay listing price")
         private long totalEbayListingPrice = 0;
-        private long totalAmazonListingPrice = 0;
+        @SerializedName(value = "Total Amazon listing count")
+        private int totalAmazonListingCount = 0;
+        @SerializedName(value = "Average eBay listing price")
         private long averageEbayListingPrice = 0;
+        @SerializedName(value = "Total Amazon listing price")
+        private long totalAmazonListingPrice = 0;
+        @SerializedName(value = "Average Amazon listing price")
         private long averageAmazonListingPrice = 0;
-        private int ebayId;
-        private int amazonId;
+        @SerializedName(value = "Best lister email address")
         private String bestListerEmail = "";
 
         public MarketplaceData() {
         }
 
-        public MarketplaceData(int ebayId, int amazonId) {
-            this.ebayId = ebayId;
-            this.amazonId = amazonId;
-        }
-
-        public void updateMarketPlaceDataWithListing(Listing listing) {
+        public void updateMarketPlaceDataWithListing(Listing listing, int ebayId, int amazonId) {
             int marketplaceId = listing.getMarketplace();
             long listingPrice = listing.getListingPrice();
 
@@ -169,9 +182,6 @@ public class ReportUtil implements ReportProcessor {
 
     private static final class MonthlyReport extends MarketplaceData {
 
-        public MonthlyReport(int ebayId, int amazonId) {
-            super(ebayId, amazonId);
-        }
     }
 
 

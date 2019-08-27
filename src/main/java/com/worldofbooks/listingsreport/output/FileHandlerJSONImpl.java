@@ -12,9 +12,13 @@ public class FileHandlerJSONImpl implements FileHandlerJSON {
     private String fileName = "report.json";
 
     @Override
-    public void writeDtoToFile(ReportDto reportDto)  throws Exception {
-        FileWriter file = new FileWriter(fileName);
-        file.write(new Gson().toJson(reportDto));
-        file.flush();
+    public void writeDtoToFile(ReportDto reportDto) {
+        try {
+            FileWriter file = new FileWriter(fileName);
+            file.write(new Gson().toJson(reportDto));
+            file.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

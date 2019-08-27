@@ -4,7 +4,8 @@ import com.worldofbooks.listingsreport.api.Listing;
 import com.worldofbooks.listingsreport.api.Location;
 import com.worldofbooks.listingsreport.api.Marketplace;
 import com.worldofbooks.listingsreport.api.Status;
-import com.worldofbooks.listingsreport.output.CsvProcessor;
+import com.worldofbooks.listingsreport.output.CsvViolationProcessor;
+import com.worldofbooks.listingsreport.output.ViolationProcessor;
 import com.worldofbooks.listingsreport.output.ReportProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,17 +22,15 @@ public class ListingValidatorImpl implements ListingValidator {
 
     private Validator validator;
     private ReportProcessor reportProcessor;
-    private CsvProcessor csvProcessor;
 
     @Autowired
-    public ListingValidatorImpl(Validator validator, ReportProcessor reportProcessor, CsvProcessor csvProcessor) {
+    public ListingValidatorImpl(Validator validator, ReportProcessor reportProcessor) {
         this.validator = validator;
         this.reportProcessor = reportProcessor;
-        this.csvProcessor = csvProcessor;
     }
 
     @Override
-    public List<Listing> validateListings(List<Listing> listings, List<Status> statuses, List<Location> locations, List<Marketplace> marketplaces) {
+    public List<Listing> validateListings(List<Listing> listings, List<Status> statuses, List<Location> locations, List<Marketplace> marketplaces, CsvViolationProcessor csvViolationProcessor) {
         List<Listing> validatedListings = new ArrayList<>();
 
         int[] statusIds = getStatusIds(statuses);
@@ -45,7 +44,7 @@ public class ListingValidatorImpl implements ListingValidator {
             if (violations.isEmpty() && referenceViolations.isEmpty()) {
                 validatedListings.add(listing);
             } else {
-                csvProcessor.processViolations(violations, referenceViolations, listing);
+                csvViolationProcessor.processViolations(violations, referenceViolations, listing);
             }
         });
         reportProcessor.collectReportData(validatedListings);

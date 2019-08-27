@@ -2,12 +2,16 @@ package com.worldofbooks.listingsreport.database;
 
 import com.worldofbooks.listingsreport.database.validation.ListingValidator;
 import com.worldofbooks.listingsreport.api.*;
+import com.worldofbooks.listingsreport.output.CsvViolationProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.*;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -46,7 +50,17 @@ public class DatabaseService {
         saveEntities(locations, locationRepository);
         saveEntities(marketplaces, marketplaceRepository);
 
-        List<Listing> validatedListings = listingValidator.validateListings(listings, statuses, locations, marketplaces);
+        ReferenceDataSet referenceDataSet = new ReferenceDataSet(statuses, locations, marketplaces);
+        EntityDataSet entityDataSet = new EntityDataSet(listings, referenceDataSet);
+
+        List<Listing> validatedListings = new ArrayList<>();
+        try (CsvViolationProcessor csvViolationProcessor = new CsvViolationProcessor()) {
+            validatedListings = listingValidator.validateListings(listings, statuses, locations, marketplaces, csvViolationProcessor);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+
         saveEntities(validatedListings, listingRepository);
     }
 
@@ -62,6 +76,48 @@ public class DatabaseService {
 
         String uriString = uriComponents.toUriString();
         return uriString;
+    }
+
+    private static final class ReferenceDataSet {
+        private List<Status> statuses;
+        private List<Location> locations;
+        private List<Marketplace> marketplaces;
+
+        public ReferenceDataSet(List<Status> statuses, List<Location> locations, List<Marketplace> marketplaces) {
+            this.statuses = statuses;
+            this.locations = locations;
+            this.marketplaces = marketplaces;
+        }
+
+        public List<Status> getStatuses() {
+            return statuses;
+        }
+
+        public List<Location> getLocations() {
+            return locations;
+        }
+
+        public List<Marketplace> getMarketplaces() {
+            return marketplaces;
+        }
+    }
+
+    private static final class EntityDataSet {
+        private List<Listing> listings;
+        private ReferenceDataSet referenceDataSet;
+
+        public EntityDataSet(List<Listing> listings, ReferenceDataSet referenceDataSet) {
+            this.listings = listings;
+            this.referenceDataSet = referenceDataSet;
+        }
+
+        public List<Listing> getListings() {
+            return listings;
+        }
+
+        public ReferenceDataSet getReferenceDataSet() {
+            return referenceDataSet;
+        }
     }
 
 }

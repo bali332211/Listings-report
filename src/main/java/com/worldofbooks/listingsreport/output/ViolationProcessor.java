@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-public interface CsvProcessor {
+public interface ViolationProcessor {
 
-    void processViolations(Set<ConstraintViolation<Listing>> violations, List<String> referenceViolations, Listing listing) throws IOException;
+    void processViolations(Set<ConstraintViolation<Listing>> violations, List<String> referenceViolations, Listing listing);
 }

@@ -3,39 +3,48 @@ package com.worldofbooks.listingsreport.output;
 import com.worldofbooks.listingsreport.api.Listing;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-@Component
-public class CsvUtil implements CsvProcessor {
+public class CsvViolationProcessor implements ViolationProcessor, Closeable {
 
     private static final String SAMPLE_CSV_FILE = "importLog.csv";
+    private final BufferedWriter writer;
+    private final CSVPrinter csvPrinter;
+
+    public CsvViolationProcessor() throws IOException {
+        this.writer = Files.newBufferedWriter(Paths.get(SAMPLE_CSV_FILE));
+
+        this.csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
+            .withHeader("ListingId", "MarketplaceName", "InvalidField"));
+    }
 
     @Override
-    public void processViolations(Set<ConstraintViolation<Listing>> violations, List<String> referenceViolations, Listing listing) throws IOException {
+    public void processViolations(Set<ConstraintViolation<Listing>> violations, List<String> referenceViolations, Listing listing) {
         List<ViolationDto> violationDtos = getViolationDtosForCSV(violations, referenceViolations, listing);
 
-        try (
-            BufferedWriter writer = Files.newBufferedWriter(Paths.get(SAMPLE_CSV_FILE));
+        try {
+            writeDtosToCSV(violationDtos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-            CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-                .withHeader("ListingId", "MarketplaceName", "InvalidField"));
-        ) {
-            for (ViolationDto violationDto : violationDtos) {
-                csvPrinter.printRecord(violationDto.listingId, String.valueOf(violationDto.marketplaceName), violationDto.fieldName);
-            }
-            csvPrinter.flush();
+    }
+
+    private void writeDtosToCSV(List<ViolationDto> violationDtos) throws IOException {
+        for (ViolationDto violationDto : violationDtos) {
+            csvPrinter.printRecord(violationDto.listingId, String.valueOf(violationDto.marketplaceName), violationDto.fieldName);
         }
     }
+
 
     private List<ViolationDto> getViolationDtosForCSV(Set<ConstraintViolation<Listing>> violations, List<String> referenceViolations, Listing listing) {
         List<ViolationDto> violationDtos = new ArrayList<>();
@@ -62,6 +71,11 @@ public class CsvUtil implements CsvProcessor {
         return violationDtos;
     }
 
+    @Override
+    public void close() throws IOException {
+        writer.close();
+        csvPrinter.close();
+    }
 
 
     private static final class ViolationDto {
