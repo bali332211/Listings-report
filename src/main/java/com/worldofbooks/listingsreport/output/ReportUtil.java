@@ -44,8 +44,10 @@ public class ReportUtil implements ReportProcessor{
         reportDto.setListingCount(listingCount);
 
         for (Listing listing : listings) {
-            int month = getMonthOfUploadTime(listing);
-            updateMonthlyReports(month, listing, monthsInReport);
+            if(listing.getUploadTime() != null) {
+                int month = getMonthOfUploadTime(listing);
+                updateMonthlyReports(month, listing, monthsInReport);
+            }
             marketplaceData.updateMarketPlaceDataWithListing(listing);
         }
         marketplaceData.setAverages();

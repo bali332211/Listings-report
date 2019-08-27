@@ -2,7 +2,7 @@ package com.worldofbooks.listingsreport.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.worldofbooks.listingsreport.database.UUIDConstraint;
+import com.worldofbooks.listingsreport.database.validation.UUIDConstraint;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,7 +12,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name="listings")
@@ -44,7 +43,6 @@ public class Listing {
     private int listingStatus;
     @NotNull
     private int marketplace;
-    @NotNull
     @JsonProperty("upload_time")
     @JsonDeserialize(using = MultiDateDeserializer.class)
     private LocalDate uploadTime;

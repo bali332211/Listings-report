@@ -1,4 +1,4 @@
-package com.worldofbooks.listingsreport.database;
+package com.worldofbooks.listingsreport.database.validation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
