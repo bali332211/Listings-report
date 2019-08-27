@@ -1,12 +1,12 @@
 CREATE TABLE locations (
   id                         VARCHAR(255) PRIMARY KEY,
-  manager_name               VARCHAR(255),
-  phone                      VARCHAR(255),
-  address_primary            VARCHAR(255),
-  address_secondary          VARCHAR(255),
-  country                    VARCHAR(255),
-  town                       VARCHAR(255),
-  postal_code                VARCHAR(255)
+  manager_name               VARCHAR(255) NOT NULL,
+  phone                      VARCHAR(255) NOT NULL,
+  address_primary            VARCHAR(255) NOT NULL,
+  address_secondary          VARCHAR(255) NOT NULL,
+  country                    VARCHAR(255) NOT NULL,
+  town                       VARCHAR(255) NOT NULL,
+  postal_code                VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE listing_statuses (

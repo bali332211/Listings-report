@@ -11,6 +11,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -46,7 +47,7 @@ public class Listing {
     @NotNull
     @JsonProperty("upload_time")
     @JsonDeserialize(using = MultiDateDeserializer.class)
-    private Date uploadTime;
+    private LocalDate uploadTime;
     @NotNull
     @Email
     @JsonProperty("owner_email_address")
@@ -124,11 +125,11 @@ public class Listing {
         this.marketplace = marketplace;
     }
 
-    public Date getUploadTime() {
+    public LocalDate getUploadTime() {
         return uploadTime;
     }
 
-    public void setUploadTime(Date uploadTime) {
+    public void setUploadTime(LocalDate uploadTime) {
         this.uploadTime = uploadTime;
     }
 

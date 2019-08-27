@@ -1,7 +1,7 @@
 package com.worldofbooks.listingsreport.database;
 
-import com.worldofbooks.listingsreport.ReportProcessor;
-import com.worldofbooks.listingsreport.ReportUtil;
+import com.worldofbooks.listingsreport.output.CsvProcessor;
+import com.worldofbooks.listingsreport.output.ReportProcessor;
 import com.worldofbooks.listingsreport.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +12,7 @@ import org.springframework.web.util.*;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ public class DatabaseService {
     private String apiKey;
     private Validator validator;
     private ReportProcessor reportProcessor;
+    private CsvProcessor csvProcessor;
 
     @Autowired
     public DatabaseService(ListingRepository listingRepository,
@@ -34,7 +36,9 @@ public class DatabaseService {
                            LocationRepository locationRepository,
                            MarketplaceRepository marketplaceRepository,
                            ApiHandler apiHandler,
-                           Validator validator, ReportUtil reportUtil, ReportProcessor reportProcessor) {
+                           Validator validator,
+                           ReportProcessor reportProcessor,
+                           CsvProcessor csvProcessor) {
         this.listingRepository = listingRepository;
         this.statusRepository = statusRepository;
         this.locationRepository = locationRepository;
@@ -42,6 +46,7 @@ public class DatabaseService {
         this.apiHandler = apiHandler;
         this.validator = validator;
         this.reportProcessor = reportProcessor;
+        this.csvProcessor = csvProcessor;
     }
 
     public void initDatabase() {
@@ -50,7 +55,12 @@ public class DatabaseService {
         List<Marketplace> marketplaces = apiHandler.getEntitiesFromAPI(constructApiMockarooUri("/marketplace"), Marketplace.class);
         List<Listing> listings = apiHandler.getEntitiesFromAPI(constructApiMockarooUri("/listing"), Listing.class);
 
+        saveEntities(statuses, statusRepository);
+        saveEntities(locations, locationRepository);
+        saveEntities(marketplaces, marketplaceRepository);
+
         List<Listing> validatedListings = validateListings(listings, statuses, locations, marketplaces);
+        saveEntities(validatedListings, listingRepository);
     }
 
     private <T> void saveEntities(List<T> entities, CrudRepository<T, ?> repository) {
@@ -71,28 +81,59 @@ public class DatabaseService {
         List<Listing> validatedListings = new ArrayList<>();
 
         int[] statusIds = getStatusIds(statuses);
-
+        List<String> locationIds = getLocationIds(locations);
+        int[] marketplaceIds = getMarketplaceIds(marketplaces);
 
         listings.forEach(listing -> {
             Set<ConstraintViolation<Listing>> violations = validator.validate(listing);
-            List<String> referenceViolations = validateForeignKeyReferences();
+            List<String> referenceViolations = validateForeignKeyReferences(listing, statusIds, locationIds, marketplaceIds);
 
-            if (locationIds.contains(listing.getLocationId())) {
-                referenceViolations.add("locationId");
-            }
-
-            if (violations.isEmpty()) {
+            if (violations.isEmpty() && referenceViolations.isEmpty()) {
                 validatedListings.add(listing);
             } else {
-                writeViolationsToCSV(violations, referenceViolations, listing);
+                csvProcessor.processViolations(violations, referenceViolations, listing);
             }
-
-
         });
         reportProcessor.collectReportData(validatedListings);
         return validatedListings;
     }
 
+    private List<String> validateForeignKeyReferences(Listing listing, int[] statusIds, List<String> locationIds, int[] marketplaceIds) {
+        List<String> referenceViolations = new ArrayList<>();
+
+        if (!locationIds.contains(listing.getLocationId())) {
+            referenceViolations.add("locationId");
+        }
+
+        int listingStatus = listing.getListingStatus();
+        int listingMarketplace = listing.getMarketplace();
+        boolean isStatusIdValid = isIntReferenceValid(listingStatus, statusIds);
+        boolean isMarketplaceIdValid = isIntReferenceValid(listingMarketplace, marketplaceIds);
+
+        if (!isStatusIdValid) {
+            referenceViolations.add("listingStatus");
+        }
+        if(!isMarketplaceIdValid) {
+            referenceViolations.add("marketplace");
+        }
+        return referenceViolations;
+    }
+
+    private int[] getMarketplaceIds(List<Marketplace> marketplaces) {
+        int[] marketplaceIds = new int[marketplaces.size()];
+
+        for (int i = 0; i < marketplaces.size(); i++) {
+            Marketplace currentMarketplace = marketplaces.get(i);
+            marketplaceIds[i] = currentMarketplace.getId();
+        }
+        return marketplaceIds;
+    }
+
+    private List<String> getLocationIds(List<Location> locations) {
+        List<String> locationIds = new ArrayList<>();
+        locations.forEach(location -> locationIds.add(location.getId()));
+        return locationIds;
+    }
 
     private int[] getStatusIds(List<Status> statuses) {
         int[] statusIds = new int[statuses.size()];
@@ -104,60 +145,9 @@ public class DatabaseService {
         return statusIds;
     }
 
-    private void writeViolationsToCSV(Set<ConstraintViolation<Listing>> violations, List<String> referenceViolations, Listing listing) {
-        List<ViolationDto> violationDtos = getViolationDtosForCSV(violations, referenceViolations, listing);
-
+    private boolean isIntReferenceValid(int listingReference, int[] references) {
+        return Arrays.stream(references).anyMatch(i -> i == listingReference);
     }
-
-    private List<ViolationDto> getViolationDtosForCSV(Set<ConstraintViolation<Listing>> violations, List<String> referenceViolations, Listing listing) {
-        List<ViolationDto> violationDtos = new ArrayList<>();
-        String id = listing.getId();
-        int marketplace = listing.getMarketplace();
-
-        violations.forEach(violation -> {
-            ViolationDto violationDto = new ViolationDto(
-                id,
-                marketplace,
-                violation.getPropertyPath().toString());
-
-            violationDtos.add(violationDto);
-        });
-
-        referenceViolations.forEach(violation -> {
-            ViolationDto violationDto = new ViolationDto(
-                id,
-                marketplace,
-                violation);
-
-            violationDtos.add(violationDto);
-        });
-        return violationDtos;
-    }
-
-    private static final class ViolationDto {
-        private final String listingId;
-        private final int marketplaceName;
-        private final String fieldName;
-
-        public ViolationDto(String listingId, int marketplaceName, String fieldName) {
-            this.listingId = listingId;
-            this.marketplaceName = marketplaceName;
-            this.fieldName = fieldName;
-        }
-
-        public String getListingId() {
-            return listingId;
-        }
-
-        public int getMarketplaceName() {
-            return marketplaceName;
-        }
-
-        public String getFieldName() {
-            return fieldName;
-        }
-    }
-
 
 
 }

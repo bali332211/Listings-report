@@ -1,4 +1,4 @@
-package com.worldofbooks.listingsreport;
+package com.worldofbooks.listingsreport.output;
 
 import com.worldofbooks.listingsreport.api.Listing;
 

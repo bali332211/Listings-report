@@ -1,4 +1,4 @@
-package com.worldofbooks.listingsreport;
+package com.worldofbooks.listingsreport.output;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.worldofbooks.listingsreport.api.Listing;
@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -16,9 +19,9 @@ public class ReportUtil implements ReportProcessor{
 
     private MarketplaceRepository marketplaceRepository;
 
-    @Value(value = "worldofbooks.ebay.name")
+    @Value(value = "${worldofbooks.ebay.name}")
     private String ebayName;
-    @Value(value = "worldofbooks.amazon.name")
+    @Value(value = "${worldofbooks.amazon.name}")
     private String amazonName;
 
     @Autowired
@@ -46,12 +49,10 @@ public class ReportUtil implements ReportProcessor{
             marketplaceData.updateMarketPlaceDataWithListing(listing);
         }
         marketplaceData.setAverages();
-
-
     }
 
     private void updateMonthlyReports(int month, Listing listing, MonthInReport[] monthsInReport) {
-        MonthInReport monthInReport = monthsInReport[month];
+        MonthInReport monthInReport = monthsInReport[month - 1];
         if (monthInReport == null) {
             monthInReport = new MonthInReport();
         }
@@ -61,19 +62,9 @@ public class ReportUtil implements ReportProcessor{
     }
 
     private int getMonthOfUploadTime(Listing listing) {
-        String uploadTime = listing.getUploadTime().toString();
-        String[] uploadTimeSplit = uploadTime.split("/");
-        String month = uploadTimeSplit[0];
-        return Integer.parseInt(month);
+        LocalDate localDateUploadTime = listing.getUploadTime();
+        return localDateUploadTime.getMonth().getValue();
     }
-
-//    private int getMonthOfUploadTime(Listing listing) {
-//        Date uploadTime = listing.getUploadTime();
-//        LocalDate localDateUploadTime = uploadTime.toInstant()
-//            .atZone(ZoneId.systemDefault())
-//            .toLocalDate();
-//        return localDateUploadTime.getMonth().getValue();
-//    }
 
     private static final class ReportDto extends MarketplaceData {
         private int listingCount = 0;
