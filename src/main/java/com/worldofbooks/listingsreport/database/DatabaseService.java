@@ -50,11 +50,11 @@ public class DatabaseService {
         saveEntities(marketplaces, marketplaceRepository);
 
         ReferenceDataSet referenceDataSet = new ReferenceDataSet(statuses, locations, marketplaces);
-        EntityDataSet entityDataSet = new EntityDataSet(listings, referenceDataSet);
+        ListingDataSet listingDataSet = new ListingDataSet(listings, referenceDataSet);
 
         List<Listing> validatedListings;
         try (ViolationWriterCsv violationWriterCsv = new ViolationWriterCsv()) {
-            validatedListings = listingValidator.validateListings(entityDataSet, violationWriterCsv);
+            validatedListings = listingValidator.validateListings(listingDataSet, violationWriterCsv);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

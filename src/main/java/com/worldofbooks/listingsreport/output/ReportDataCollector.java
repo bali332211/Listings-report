@@ -10,8 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class ReportDataCollector implements ReportProcessor {
@@ -36,43 +35,25 @@ public class ReportDataCollector implements ReportProcessor {
         Marketplace amazon = marketplaceRepository.findByMarketplaceName(amazonName);
         int ebayId = ebay.getId();
         int amazonId = amazon.getId();
-        int listingCount = listings.size();
 
-        ReportDto reportDto = new ReportDto();
-        MonthInReport[] monthsInReport = new MonthInReport[12];
-        HashMap<String, Integer> emailCounts = new HashMap<>();
-
-        reportDto.setListingCount(listingCount);
-
-        for (Listing listing : listings) {
-            if (listing.getUploadTime() != null) {
-                int month = getMonthOfUploadTime(listing);
-                updateMonthlyReports(month, listing, monthsInReport, ebayId, amazonId);
-            }
-            reportDto.updateMarketPlaceDataWithListing(listing, ebayId, amazonId);
-
-            String email = listing.getOwnerEmailAddress();
-            addEmailToHashMap(email, emailCounts);
-        }
-
-        reportDto.setAverages();
-        for (MonthInReport monthInReport : monthsInReport) {
-            if(monthInReport != null) {
-                monthInReport.monthlyReport.setAverages();
-            }
-        }
-        reportDto.setMonthsInReport(monthsInReport);
+        listings.sort(new SortByUploadTime());
+        ReportDto reportDto = makeReportDto(listings, ebayId, amazonId);
 
         fileHandlerJSON.handleReportData(reportDto);
     }
 
-    private void addEmailToHashMap(String email, HashMap<String, Integer> map) {
-        map.compute(email, (k, v) -> {
-            if (v != null) {
-                return v + 1;
-            }
-            return 1;
-        });
+    private ReportDto makeReportDto(List<Listing> listings, int ebayId, int amazonId) {
+        int listingCount = listings.size();
+
+        ReportDto reportDto = new ReportDto();
+        reportDto.setListingCount(listingCount);
+        reportDto.updateMarketPlaceDataWithListing(listings, ebayId, amazonId);
+        reportDto.setAverages();
+
+
+
+        fileHandlerJSON.handleReportData(reportDto);
+        return reportDto;
     }
 
     private void updateMonthlyReports(int month, Listing listing, MonthInReport[] monthsInReport, int ebayId, int amazonId) {
@@ -94,7 +75,7 @@ public class ReportDataCollector implements ReportProcessor {
         @SerializedName(value = "Total listing count")
         private int listingCount = 0;
         @SerializedName(value = "Monthly reports")
-        private MonthInReport[] monthsInReport = new MonthInReport[12];
+        private List<MonthInReport> monthsInReport = new ArrayList<>();
 
         public int getListingCount() {
             return listingCount;
@@ -104,11 +85,11 @@ public class ReportDataCollector implements ReportProcessor {
             this.listingCount = listingCount;
         }
 
-        public MonthInReport[] getMonthsInReport() {
+        public List<MonthInReport> getMonthsInReport() {
             return monthsInReport;
         }
 
-        public void setMonthsInReport(MonthInReport[] monthsInReport) {
+        public void setMonthsInReport(List<MonthInReport> monthsInReport) {
             this.monthsInReport = monthsInReport;
         }
     }
@@ -132,17 +113,54 @@ public class ReportDataCollector implements ReportProcessor {
         public MarketplaceData() {
         }
 
-        public void updateMarketPlaceDataWithListing(Listing listing, int ebayId, int amazonId) {
-            int marketplaceId = listing.getMarketplace();
-            long listingPrice = listing.getListingPrice();
+        public void updateMarketPlaceDataWithListing(List<Listing> listings, int ebayId, int amazonId) {
+            for (Listing listing : listings) {
+                int marketplaceId = listing.getMarketplace();
+                long listingPrice = listing.getListingPrice();
 
-            if (marketplaceId == ebayId) {
-                incrementEbayListingCount();
-                addPriceToEbayListingPrice(listingPrice);
-            } else if (marketplaceId == amazonId) {
-                incrementAmazonListingCount();
-                addPriceToAmazonListingPrice(listingPrice);
+                if (marketplaceId == ebayId) {
+                    incrementEbayListingCount();
+                    addPriceToEbayListingPrice(listingPrice);
+                } else if (marketplaceId == amazonId) {
+                    incrementAmazonListingCount();
+                    addPriceToAmazonListingPrice(listingPrice);
+                }
             }
+
+            String bestLister = getBestListerEmailFromListings(listings);
+            setBestListerEmail(bestLister);
+
+        }
+
+        private String getBestListerEmailFromListings(List<Listing> listings) {
+            HashMap<String, Integer> emailCounts = new HashMap<>();
+
+            for (Listing listing : listings) {
+                String email = listing.getOwnerEmailAddress();
+                addEmailToEmailCounts(email, emailCounts);
+            }
+
+            return getBestListerEmailFromMap(emailCounts);
+        }
+
+        private String getBestListerEmailFromMap(HashMap<String, Integer> emailCounts) {
+            String bestEmail = "";
+            int count = 0;
+            for (Map.Entry<String, Integer> entry : emailCounts.entrySet()) {
+                if(entry.getValue() > count) {
+                    bestEmail = entry.getKey();
+                }
+            }
+            return bestEmail;
+        }
+
+        private void addEmailToEmailCounts(String email, HashMap<String, Integer> map) {
+            map.compute(email, (k, v) -> {
+                if (v != null) {
+                    return v + 1;
+                }
+                return 1;
+            });
         }
 
         private void incrementEbayListingCount() {
@@ -184,5 +202,19 @@ public class ReportDataCollector implements ReportProcessor {
 
     }
 
+    public static final class SortByUploadTime implements Comparator<Listing> {
 
+        @Override
+        public int compare(Listing o1, Listing o2) {
+            LocalDate uploadTime = o1.getUploadTime();
+            LocalDate uploadTime2 = o2.getUploadTime();
+
+            if (uploadTime.compareTo(uploadTime2) > 0) {
+                return 1;
+            } else if (uploadTime.compareTo(uploadTime2) < 0) {
+                return -1;
+            }
+            return 0;
+        }
+    }
 }

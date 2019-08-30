@@ -4,7 +4,7 @@ import com.worldofbooks.listingsreport.api.Listing;
 import com.worldofbooks.listingsreport.api.Location;
 import com.worldofbooks.listingsreport.api.Marketplace;
 import com.worldofbooks.listingsreport.api.Status;
-import com.worldofbooks.listingsreport.database.EntityDataSet;
+import com.worldofbooks.listingsreport.database.ListingDataSet;
 import com.worldofbooks.listingsreport.output.ViolationWriterCsv;
 import com.worldofbooks.listingsreport.output.ReportProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +30,11 @@ public class ListingValidatorImpl implements ListingValidator {
     }
 
     @Override
-    public List<Listing> validateListings(EntityDataSet entityDataSet, ViolationWriterCsv violationWriterCsv) {
-        List<Listing> listings = entityDataSet.getListings();
-        List<Status> statuses = entityDataSet.getReferenceDataSet().getStatuses();
-        List<Location> locations = entityDataSet.getReferenceDataSet().getLocations();
-        List<Marketplace> marketplaces = entityDataSet.getReferenceDataSet().getMarketplaces();
+    public List<Listing> validateListings(ListingDataSet listingDataSet, ViolationWriterCsv violationWriterCsv) {
+        List<Listing> listings = listingDataSet.getListings();
+        List<Status> statuses = listingDataSet.getReferenceDataSet().getStatuses();
+        List<Location> locations = listingDataSet.getReferenceDataSet().getLocations();
+        List<Marketplace> marketplaces = listingDataSet.getReferenceDataSet().getMarketplaces();
 
         List<Listing> validatedListings = new ArrayList<>();
 
@@ -65,13 +65,13 @@ public class ListingValidatorImpl implements ListingValidator {
 
         int listingStatus = listing.getListingStatus();
         int listingMarketplace = listing.getMarketplace();
-        boolean isStatusIdValid = isIntReferenceValid(listingStatus, statusIds);
-        boolean isMarketplaceIdValid = isIntReferenceValid(listingMarketplace, marketplaceIds);
+        boolean isStatusReferenceValid = isIntegerReferenceValid(listingStatus, statusIds);
+        boolean isMarketplaceReferenceValid = isIntegerReferenceValid(listingMarketplace, marketplaceIds);
 
-        if (!isStatusIdValid) {
+        if (!isStatusReferenceValid) {
             referenceViolations.add("listingStatus");
         }
-        if(!isMarketplaceIdValid) {
+        if(!isMarketplaceReferenceValid) {
             referenceViolations.add("marketplace");
         }
         return referenceViolations;
@@ -103,7 +103,7 @@ public class ListingValidatorImpl implements ListingValidator {
         return statusIds;
     }
 
-    private boolean isIntReferenceValid(int listingReference, int[] references) {
+    private boolean isIntegerReferenceValid(int listingReference, int[] references) {
         return Arrays.stream(references).anyMatch(i -> i == listingReference);
     }
 

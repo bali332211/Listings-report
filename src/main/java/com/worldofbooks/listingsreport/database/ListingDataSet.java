@@ -4,11 +4,11 @@ import com.worldofbooks.listingsreport.api.Listing;
 
 import java.util.List;
 
-public class EntityDataSet {
+public class ListingDataSet {
     private List<Listing> listings;
     private ReferenceDataSet referenceDataSet;
 
-    public EntityDataSet(List<Listing> listings, ReferenceDataSet referenceDataSet) {
+    public ListingDataSet(List<Listing> listings, ReferenceDataSet referenceDataSet) {
         this.listings = listings;
         this.referenceDataSet = referenceDataSet;
     }
