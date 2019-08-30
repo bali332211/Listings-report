@@ -2,7 +2,6 @@ package com.worldofbooks.listingsreport.output;
 
 import com.google.gson.Gson;
 import org.springframework.stereotype.Component;
-import com.worldofbooks.listingsreport.output.ReportDataCollector.ReportDto;
 
 import java.io.FileWriter;
 
