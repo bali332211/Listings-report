@@ -1,7 +1,7 @@
 package com.worldofbooks.listingsreport.output;
 
-import com.worldofbooks.listingsreport.output.ReportUtil.ReportDto;
+import com.worldofbooks.listingsreport.output.ReportDataCollector.ReportDto;
 
 public interface FileHandlerJSON {
-    void writeDtoToFile(ReportDto reportDto);
+    void handleReportData(ReportDto reportDto);
 }

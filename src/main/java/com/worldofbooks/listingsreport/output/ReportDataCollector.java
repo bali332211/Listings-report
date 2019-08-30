@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Component
-public class ReportUtil implements ReportProcessor {
+public class ReportDataCollector implements ReportProcessor {
 
     private MarketplaceRepository marketplaceRepository;
     private FileHandlerJSON fileHandlerJSON;
@@ -25,7 +25,7 @@ public class ReportUtil implements ReportProcessor {
     private String amazonName;
 
     @Autowired
-    public ReportUtil(MarketplaceRepository marketplaceRepository, FileHandlerJSON fileHandlerJSON) {
+    public ReportDataCollector(MarketplaceRepository marketplaceRepository, FileHandlerJSON fileHandlerJSON) {
         this.marketplaceRepository = marketplaceRepository;
         this.fileHandlerJSON = fileHandlerJSON;
     }
@@ -63,7 +63,7 @@ public class ReportUtil implements ReportProcessor {
         }
         reportDto.setMonthsInReport(monthsInReport);
 
-        fileHandlerJSON.writeDtoToFile(reportDto);
+        fileHandlerJSON.handleReportData(reportDto);
     }
 
     private void addEmailToHashMap(String email, HashMap<String, Integer> map) {

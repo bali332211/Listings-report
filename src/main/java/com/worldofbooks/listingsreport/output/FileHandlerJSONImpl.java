@@ -2,7 +2,7 @@ package com.worldofbooks.listingsreport.output;
 
 import com.google.gson.Gson;
 import org.springframework.stereotype.Component;
-import com.worldofbooks.listingsreport.output.ReportUtil.ReportDto;
+import com.worldofbooks.listingsreport.output.ReportDataCollector.ReportDto;
 
 import java.io.FileWriter;
 
@@ -12,7 +12,7 @@ public class FileHandlerJSONImpl implements FileHandlerJSON {
     private String fileName = "report.json";
 
     @Override
-    public void writeDtoToFile(ReportDto reportDto) {
+    public void handleReportData(ReportDto reportDto) {
         try {
             FileWriter file = new FileWriter(fileName);
             file.write(new Gson().toJson(reportDto));

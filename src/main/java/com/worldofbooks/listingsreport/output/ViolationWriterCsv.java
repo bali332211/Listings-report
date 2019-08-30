@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class CsvViolationProcessor implements ViolationProcessor, Closeable {
+public class ViolationWriterCsv implements ViolationProcessor, Closeable {
 
     private static final String SAMPLE_CSV_FILE = "importLog.csv";
     private final BufferedWriter writer;
     private final CSVPrinter csvPrinter;
 
-    public CsvViolationProcessor() throws IOException {
+    public ViolationWriterCsv() throws IOException {
         this.writer = Files.newBufferedWriter(Paths.get(SAMPLE_CSV_FILE));
 
         this.csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT

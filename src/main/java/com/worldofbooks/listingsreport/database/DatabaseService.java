@@ -2,7 +2,7 @@ package com.worldofbooks.listingsreport.database;
 
 import com.worldofbooks.listingsreport.database.validation.ListingValidator;
 import com.worldofbooks.listingsreport.api.*;
-import com.worldofbooks.listingsreport.output.CsvViolationProcessor;
+import com.worldofbooks.listingsreport.output.ViolationWriterCsv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.CrudRepository;
@@ -53,8 +53,8 @@ public class DatabaseService {
         EntityDataSet entityDataSet = new EntityDataSet(listings, referenceDataSet);
 
         List<Listing> validatedListings;
-        try (CsvViolationProcessor csvViolationProcessor = new CsvViolationProcessor()) {
-            validatedListings = listingValidator.validateListings(entityDataSet, csvViolationProcessor);
+        try (ViolationWriterCsv violationWriterCsv = new ViolationWriterCsv()) {
+            validatedListings = listingValidator.validateListings(entityDataSet, violationWriterCsv);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -5,8 +5,7 @@ import com.worldofbooks.listingsreport.api.Location;
 import com.worldofbooks.listingsreport.api.Marketplace;
 import com.worldofbooks.listingsreport.api.Status;
 import com.worldofbooks.listingsreport.database.EntityDataSet;
-import com.worldofbooks.listingsreport.output.CsvViolationProcessor;
-import com.worldofbooks.listingsreport.output.ViolationProcessor;
+import com.worldofbooks.listingsreport.output.ViolationWriterCsv;
 import com.worldofbooks.listingsreport.output.ReportProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,7 +30,7 @@ public class ListingValidatorImpl implements ListingValidator {
     }
 
     @Override
-    public List<Listing> validateListings(EntityDataSet entityDataSet, CsvViolationProcessor csvViolationProcessor) {
+    public List<Listing> validateListings(EntityDataSet entityDataSet, ViolationWriterCsv violationWriterCsv) {
         List<Listing> listings = entityDataSet.getListings();
         List<Status> statuses = entityDataSet.getReferenceDataSet().getStatuses();
         List<Location> locations = entityDataSet.getReferenceDataSet().getLocations();
@@ -50,7 +49,7 @@ public class ListingValidatorImpl implements ListingValidator {
             if (violations.isEmpty() && referenceViolations.isEmpty()) {
                 validatedListings.add(listing);
             } else {
-                csvViolationProcessor.processViolations(violations, referenceViolations, listing);
+                violationWriterCsv.processViolations(violations, referenceViolations, listing);
             }
         });
         reportProcessor.collectReportData(validatedListings);
