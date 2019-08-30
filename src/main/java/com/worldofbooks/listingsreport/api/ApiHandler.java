@@ -31,8 +31,7 @@ public class ApiHandler {
                     return new MyParameterizedTypeImpl((ParameterizedType) super.getType(), new Type[]{tClass});
                 }
             });
-        List<T> entities = response.getBody();
-        return entities;
+        return response.getBody();
     }
 
     public static final class MyParameterizedTypeImpl implements ParameterizedType {

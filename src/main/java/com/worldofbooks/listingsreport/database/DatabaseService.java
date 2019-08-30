@@ -11,7 +11,6 @@ import org.springframework.web.util.*;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -53,14 +52,12 @@ public class DatabaseService {
         ReferenceDataSet referenceDataSet = new ReferenceDataSet(statuses, locations, marketplaces);
         EntityDataSet entityDataSet = new EntityDataSet(listings, referenceDataSet);
 
-        List<Listing> validatedListings = new ArrayList<>();
+        List<Listing> validatedListings;
         try (CsvViolationProcessor csvViolationProcessor = new CsvViolationProcessor()) {
-            validatedListings = listingValidator.validateListings(listings, statuses, locations, marketplaces, csvViolationProcessor);
+            validatedListings = listingValidator.validateListings(entityDataSet, csvViolationProcessor);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-
-
         saveEntities(validatedListings, listingRepository);
     }
 
@@ -74,50 +71,7 @@ public class DatabaseService {
         UriComponents uriComponents = UriComponentsBuilder.newInstance()
             .scheme("https").host("my.api.mockaroo.com").path(path).query("key={keyword}").buildAndExpand(apiKey);
 
-        String uriString = uriComponents.toUriString();
-        return uriString;
-    }
-
-    private static final class ReferenceDataSet {
-        private List<Status> statuses;
-        private List<Location> locations;
-        private List<Marketplace> marketplaces;
-
-        public ReferenceDataSet(List<Status> statuses, List<Location> locations, List<Marketplace> marketplaces) {
-            this.statuses = statuses;
-            this.locations = locations;
-            this.marketplaces = marketplaces;
-        }
-
-        public List<Status> getStatuses() {
-            return statuses;
-        }
-
-        public List<Location> getLocations() {
-            return locations;
-        }
-
-        public List<Marketplace> getMarketplaces() {
-            return marketplaces;
-        }
-    }
-
-    private static final class EntityDataSet {
-        private List<Listing> listings;
-        private ReferenceDataSet referenceDataSet;
-
-        public EntityDataSet(List<Listing> listings, ReferenceDataSet referenceDataSet) {
-            this.listings = listings;
-            this.referenceDataSet = referenceDataSet;
-        }
-
-        public List<Listing> getListings() {
-            return listings;
-        }
-
-        public ReferenceDataSet getReferenceDataSet() {
-            return referenceDataSet;
-        }
+        return uriComponents.toUriString();
     }
 
 }

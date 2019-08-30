@@ -4,6 +4,7 @@ import com.worldofbooks.listingsreport.api.Listing;
 import com.worldofbooks.listingsreport.api.Location;
 import com.worldofbooks.listingsreport.api.Marketplace;
 import com.worldofbooks.listingsreport.api.Status;
+import com.worldofbooks.listingsreport.database.EntityDataSet;
 import com.worldofbooks.listingsreport.output.CsvViolationProcessor;
 import com.worldofbooks.listingsreport.output.ViolationProcessor;
 import com.worldofbooks.listingsreport.output.ReportProcessor;
@@ -30,7 +31,12 @@ public class ListingValidatorImpl implements ListingValidator {
     }
 
     @Override
-    public List<Listing> validateListings(List<Listing> listings, List<Status> statuses, List<Location> locations, List<Marketplace> marketplaces, CsvViolationProcessor csvViolationProcessor) {
+    public List<Listing> validateListings(EntityDataSet entityDataSet, CsvViolationProcessor csvViolationProcessor) {
+        List<Listing> listings = entityDataSet.getListings();
+        List<Status> statuses = entityDataSet.getReferenceDataSet().getStatuses();
+        List<Location> locations = entityDataSet.getReferenceDataSet().getLocations();
+        List<Marketplace> marketplaces = entityDataSet.getReferenceDataSet().getMarketplaces();
+
         List<Listing> validatedListings = new ArrayList<>();
 
         int[] statusIds = getStatusIds(statuses);
