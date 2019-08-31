@@ -53,6 +53,23 @@ public class Listing {
     @JsonProperty("owner_email_address")
     private String ownerEmailAddress;
 
+    public Listing() {
+    }
+
+    public Listing(String id, String title, String description, String locationId, int listingPrice, String currency, int quantity, int listingStatus, int marketplace, LocalDate uploadTime, String ownerEmailAddress) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.locationId = locationId;
+        this.listingPrice = listingPrice;
+        this.currency = currency;
+        this.quantity = quantity;
+        this.listingStatus = listingStatus;
+        this.marketplace = marketplace;
+        this.uploadTime = uploadTime;
+        this.ownerEmailAddress = ownerEmailAddress;
+    }
+
     public String getId() {
         return id;
     }

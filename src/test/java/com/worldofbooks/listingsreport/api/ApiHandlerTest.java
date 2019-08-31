@@ -1,18 +1,33 @@
 package com.worldofbooks.listingsreport.api;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.worldofbooks.listingsreport.ListingBuilder;
 import com.worldofbooks.listingsreport.TestService;
+import com.worldofbooks.listingsreport.output.ReportDataCollector;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 
+import org.springframework.test.web.client.match.MockRestRequestMatchers;
+import org.springframework.test.web.client.response.MockRestResponseCreators;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,6 +43,8 @@ public class ApiHandlerTest {
 
     private MockRestServiceServer mockServer;
     private ApiHandler apiHandler;
+
+    @Autowired
     private RestTemplate restTemplate;
 
     @Before
@@ -39,18 +56,16 @@ public class ApiHandlerTest {
 
     @Test
     public void getEntitiesFromAPI() throws IOException {
-        Listing listing = new Listing();
-        listing.setId("idvalue");
-        listing.setCurrency("1");
-        listing.setDescription("1");
-        listing.setListingPrice(1);
-        listing.setListingStatus(1);
-        listing.setLocationId("sadf");
-        listing.setMarketplace(1);
-        listing.setOwnerEmailAddress("dsf");
-        listing.setTitle("dsf");
-        listing.setQuantity(1);
-        listing.setMarketplace(1);
+        Listing listing = new ListingBuilder("testId", "testTitle")
+                .listingPrice(15)
+                .listingStatus(4)
+                .currency("testCurrency")
+                .description("testDescription")
+                .locationId("testLocationId")
+                .marketplace(7)
+                .ownerEmailAddress("testEmail")
+                .quantity(1)
+                .createListing();
 
         String url = "https://my.api.mockaroo.com/listing?key=63304c70";
 
@@ -58,10 +73,23 @@ public class ApiHandlerTest {
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(TestService.convertToJson(Arrays.asList(listing)), MediaType.APPLICATION_JSON));
 
-        List<Listing> result = apiHandler.getEntitiesFromAPI(url, Listing.class);
+        List<Listing> listings = apiHandler.getEntitiesFromAPI(url, Listing.class);
 
         mockServer.verify();
-        assertThat(result.get(0).getId(), is("idvalue"));
+        Listing listingFromApi = listings.get(0);
+        assertThat(listingFromApi.getId(), is("testId"));
+        assertThat(listingFromApi.getDescription(), is("testDescription"));
+        assertThat(listingFromApi.getOwnerEmailAddress(), is("testEmail"));
     }
 
+    @Configuration
+    public static class Config {
+
+        @Bean(name = "TestRestTemplateConfiguration")
+        @Primary
+        public RestTemplate restTemplate() {
+            return Mockito.mock(RestTemplate.class);
+        }
+
+    }
 }
