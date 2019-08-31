@@ -61,7 +61,7 @@ public class MultiDateDeserializerTest {
 
         for (String date : datesAllowed) {
             when(jsonNode.textValue()).thenReturn(date);
-            LocalDate localDate = getLocaldateFromString(date);
+            LocalDate localDate = getLocalDateFromString(date);
 
             assertEquals(localDate, multiDateDeserializer.deserialize(jsonParser, deserializationContext));
         }
@@ -80,7 +80,7 @@ public class MultiDateDeserializerTest {
         multiDateDeserializer.deserialize(jsonParser, deserializationContext);
     }
 
-    private LocalDate getLocaldateFromString(String date) {
+    private LocalDate getLocalDateFromString(String date) {
         LocalDate localDate = null;
         for (String DATE_FORMAT : DATE_FORMATS) {
             try {

@@ -1,13 +1,7 @@
 package com.worldofbooks.listingsreport.api;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.worldofbooks.listingsreport.ListingBuilder;
 import com.worldofbooks.listingsreport.TestService;
-import com.worldofbooks.listingsreport.output.ReportDataCollector;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,12 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 
-import org.springframework.test.web.client.match.MockRestRequestMatchers;
-import org.springframework.test.web.client.response.MockRestResponseCreators;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 

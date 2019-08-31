@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.1.7.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 	id 'java'
+	id 'info.solidsoft.pitest' version '1.4.0'
 }
 
 group = 'com.worldofbooks'
@@ -11,6 +12,12 @@ targetCompatibility = sourceCompatibility
 
 repositories {
 	mavenCentral()
+}
+
+pitest {
+	targetClasses = ['com.worldofbooks.listingsreport.api.ApiHandler',
+					 'com.worldofbooks.listingsreport.api.MultiDateDeserializer']
+	targetTests = ['com.worldofbooks.listingsreport.api.**']
 }
 
 dependencies {
@@ -33,6 +40,4 @@ dependencies {
 	testImplementation group: 'com.h2database', name: 'h2', version: '1.4.199'
 
 	runtimeOnly 'org.postgresql:postgresql'
-
-//	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
