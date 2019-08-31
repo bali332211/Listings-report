@@ -2,6 +2,7 @@ package com.worldofbooks.listingsreport.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.worldofbooks.listingsreport.database.validation.DecimalConstraint;
 import com.worldofbooks.listingsreport.database.validation.UUIDConstraint;
 
 import javax.persistence.Entity;
@@ -29,8 +30,9 @@ public class Listing {
     @JsonProperty("location_id")
     private String locationId;
     @NotNull
-    @JsonProperty("listing_price")
+    @DecimalConstraint
     @Min(value = 1, message = "only above 0 allowed")
+    @JsonProperty("listing_price")
     private int listingPrice;
     @NotNull
     @Size(min = 3, max = 3, message = "currency length needs to be 3")
