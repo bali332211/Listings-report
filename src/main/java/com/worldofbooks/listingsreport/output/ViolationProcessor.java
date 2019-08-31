@@ -3,7 +3,6 @@ package com.worldofbooks.listingsreport.output;
 import com.worldofbooks.listingsreport.api.Listing;
 
 import javax.validation.ConstraintViolation;
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
