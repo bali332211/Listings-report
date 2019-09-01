@@ -17,9 +17,12 @@ repositories {
 pitest {
 	targetClasses = ['com.worldofbooks.listingsreport.api.ApiHandler',
 					 'com.worldofbooks.listingsreport.api.MultiDateDeserializer',
-					 'com.worldofbooks.listingsreport.database.validation.**']
+					 'com.worldofbooks.listingsreport.database.validation.**',
+					 'com.worldofbooks.listingsreport.output.ReportDataCollector',
+					 'com.worldofbooks.listingsreport.output.ReportDto']
 	targetTests = ['com.worldofbooks.listingsreport.api.**',
-				   'com.worldofbooks.listingsreport.database.validation.**']
+				   'com.worldofbooks.listingsreport.database.validation.**',
+				   'com.worldofbooks.listingsreport.output.**']
 }
 
 dependencies {

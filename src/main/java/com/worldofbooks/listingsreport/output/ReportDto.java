@@ -120,6 +120,34 @@ class MarketplaceData {
     public void setBestListerEmail(String email) {
         bestListerEmail = email;
     }
+
+    public int getTotalEbayListingCount() {
+        return totalEbayListingCount;
+    }
+
+    public double getTotalEbayListingPrice() {
+        return totalEbayListingPrice;
+    }
+
+    public double getTotalAmazonListingCount() {
+        return totalAmazonListingCount;
+    }
+
+    public double getAverageEbayListingPrice() {
+        return averageEbayListingPrice;
+    }
+
+    public double getTotalAmazonListingPrice() {
+        return totalAmazonListingPrice;
+    }
+
+    public double getAverageAmazonListingPrice() {
+        return averageAmazonListingPrice;
+    }
+
+    public String getBestListerEmail() {
+        return bestListerEmail;
+    }
 }
 
 class MonthlyReport extends MarketplaceData {
