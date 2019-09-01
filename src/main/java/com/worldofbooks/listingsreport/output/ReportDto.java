@@ -34,22 +34,22 @@ class MarketplaceData {
     @SerializedName(value = "Total eBay listing count")
     private int totalEbayListingCount = 0;
     @SerializedName(value = "Total eBay listing price")
-    private long totalEbayListingPrice = 0;
+    private double totalEbayListingPrice = 0;
     @SerializedName(value = "Total Amazon listing count")
-    private int totalAmazonListingCount = 0;
+    private double totalAmazonListingCount = 0;
     @SerializedName(value = "Average eBay listing price")
-    private long averageEbayListingPrice = 0;
+    private double averageEbayListingPrice = 0;
     @SerializedName(value = "Total Amazon listing price")
-    private long totalAmazonListingPrice = 0;
+    private double totalAmazonListingPrice = 0;
     @SerializedName(value = "Average Amazon listing price")
-    private long averageAmazonListingPrice = 0;
+    private double averageAmazonListingPrice = 0;
     @SerializedName(value = "Best lister email address")
     private String bestListerEmail = "";
 
     public void updateMarketPlaceDataWithListing(List<Listing> listings, int ebayId, int amazonId) {
         for (Listing listing : listings) {
             int marketplaceId = listing.getMarketplace();
-            long listingPrice = listing.getListingPrice();
+            double listingPrice = listing.getListingPrice();
 
             if (marketplaceId == ebayId) {
                 incrementEbayListingCount();
@@ -100,7 +100,7 @@ class MarketplaceData {
         totalEbayListingCount++;
     }
 
-    private void addPriceToEbayListingPrice(long price) {
+    private void addPriceToEbayListingPrice(double price) {
         totalEbayListingPrice += price;
     }
 
@@ -108,7 +108,7 @@ class MarketplaceData {
         totalAmazonListingCount++;
     }
 
-    private void addPriceToAmazonListingPrice(long price) {
+    private void addPriceToAmazonListingPrice(double price) {
         totalAmazonListingPrice += price;
     }
 

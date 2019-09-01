@@ -14,6 +14,8 @@ import com.worldofbooks.listingsreport.output.ReportProcessor;
 import com.worldofbooks.listingsreport.output.ViolationWriterCsv;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,21 +23,27 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ListingsreportApplication.class)
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class ListingValidatorImplTest {
 
     @Autowired
@@ -48,30 +56,33 @@ public class ListingValidatorImplTest {
     @Autowired
     private ReportProcessor reportProcessor;
 
+//    @Captor
+//    private ArgumentCaptor<List<Listing>> listingsCaptor;
+
     @Test
     public void validateListings() {
-        Listing listingAllowed = new ListingBuilder("testId", "testTitle")
-                .listingPrice(15)
+        Listing listingAllowed = new ListingBuilder("6022bade-659e-448a-a9fc-f588609f9b6b", "testTitle")
+                .listingPrice(15.01)
                 .listingStatus(4)
-                .currency("testCurrency")
-                .description("testDescription")
                 .locationId("testLocationId")
                 .marketplace(2)
+                .currency("USD")
+                .description("testDescription")
                 .uploadTime(LocalDate.of(2018, 10, 2))
-                .ownerEmailAddress("testEmail")
+                .ownerEmailAddress("testEmail@email.com")
                 .quantity(1)
                 .createListing();
 
-        Listing listingNotAllowed = new ListingBuilder("testId", "testTitle")
-                .listingPrice(15)
-                .listingStatus(4)
-                .currency("testCurrency")
-                .description("testDescription")
-                .locationId("testLocationId")
-                .marketplace(7)
+        Listing listingNotAllowed = new ListingBuilder("testId", null) //UUID violation, null violation
+                .listingPrice(15) //2 decimals violation
+                .listingStatus(3) //reference violation
+                .locationId("testLocationId2") //reference violation
+                .marketplace(7) //reference violation
+                .currency("testCurrency") //length violation
+                .description(null) //null violation
                 .uploadTime(LocalDate.of(2018, 10, 2))
-                .ownerEmailAddress("testEmail")
-                .quantity(1)
+                .ownerEmailAddress("testEmailemail.com") //email form violation
+                .quantity(0) // > 0 violation
                 .createListing();
 
         Status status = new Status();
@@ -87,6 +98,12 @@ public class ListingValidatorImplTest {
         List<Listing> validatedListings = listingValidator.validateListings(listingDataSet, violationWriterCsv);
 
         assertThat(validatedListings.size(), is(1));
+
+        verify(violationWriterCsv, times(1))
+                .processViolations(HashSet.class, ArrayList.class, listingsCaptor.capture());
+
+        Note noteArgumentValue = noteArgument.getValue();
+
 
     }
 
@@ -110,6 +127,11 @@ public class ListingValidatorImplTest {
         public Validator validator() {
             ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
             return factory.getValidator();
+        }
+        @Bean(name = "TestListingValidatorConfiguration")
+        @Primary
+        public ListingValidator listingValidator() {
+            return new ListingValidatorImpl(validator(), reportProcessor());
         }
     }
 

@@ -33,7 +33,7 @@ public class Listing {
     @DecimalConstraint
     @Min(value = 1, message = "only above 0 allowed")
     @JsonProperty("listing_price")
-    private int listingPrice;
+    private double listingPrice;
     @NotNull
     @Size(min = 3, max = 3, message = "currency length needs to be 3")
     private String currency;
@@ -56,7 +56,7 @@ public class Listing {
     public Listing() {
     }
 
-    public Listing(String id, String title, String description, String locationId, int listingPrice, String currency, int quantity, int listingStatus, int marketplace, LocalDate uploadTime, String ownerEmailAddress) {
+    public Listing(String id, String title, String description, String locationId, double listingPrice, String currency, int quantity, int listingStatus, int marketplace, LocalDate uploadTime, String ownerEmailAddress) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -102,11 +102,11 @@ public class Listing {
         this.locationId = locationId;
     }
 
-    public int getListingPrice() {
+    public double getListingPrice() {
         return listingPrice;
     }
 
-    public void setListingPrice(int listingPrice) {
+    public void setListingPrice(double listingPrice) {
         this.listingPrice = listingPrice;
     }
 

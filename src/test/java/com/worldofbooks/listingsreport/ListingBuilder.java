@@ -9,7 +9,7 @@ public class ListingBuilder {
     private String title;
     private String description;
     private String locationId;
-    private int listingPrice;
+    private double listingPrice;
     private String currency;
     private int quantity;
     private int listingStatus;
@@ -32,7 +32,7 @@ public class ListingBuilder {
         return this;
     }
 
-    public ListingBuilder listingPrice(int listingPrice) {
+    public ListingBuilder listingPrice(double listingPrice) {
         this.listingPrice = listingPrice;
         return this;
     }
