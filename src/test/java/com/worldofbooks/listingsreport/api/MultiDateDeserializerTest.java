@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -30,6 +31,8 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 public class MultiDateDeserializerTest {
 
+    private MultiDateDeserializer multiDateDeserializer;
+
     @Autowired
     private JsonParser jsonParser;
     @Autowired
@@ -46,6 +49,11 @@ public class MultiDateDeserializerTest {
             "MM/dd/yyyy"
     };
 
+    @Before
+    public void setup() {
+        multiDateDeserializer = new MultiDateDeserializer(LocalDate.class);
+    }
+
     @Test
     public void deserializeOk() throws Exception {
         when(jsonParser.getCodec()).thenReturn(objectCodec);
@@ -56,8 +64,6 @@ public class MultiDateDeserializerTest {
                 "2/22/2018",
                 "12/22/2018",
                 "12/2/2018");
-
-        MultiDateDeserializer multiDateDeserializer = new MultiDateDeserializer(LocalDate.class);
 
         for (String date : datesAllowed) {
             when(jsonNode.textValue()).thenReturn(date);
@@ -73,8 +79,6 @@ public class MultiDateDeserializerTest {
         when(objectCodec.readTree(any())).thenReturn(jsonNode);
 
         String date = "2/2018";
-
-        MultiDateDeserializer multiDateDeserializer = new MultiDateDeserializer(LocalDate.class);
 
         when(jsonNode.textValue()).thenReturn(date);
         multiDateDeserializer.deserialize(jsonParser, deserializationContext);
@@ -111,19 +115,13 @@ public class MultiDateDeserializerTest {
         @Bean(name = "TestObjectCodecConfiguration")
         @Primary
         public ObjectCodec objectCodec() throws IOException {
-            ObjectCodec objectCodec = Mockito.mock(ObjectCodec.class);
-//            when(objectCodec.readTree(any())).thenReturn(jsonNode);
-
-            return objectCodec;
+            return Mockito.mock(ObjectCodec.class);
         }
 
         @Bean(name = "TestJsonParserConfiguration")
         @Primary
         public JsonParser jsonParser() {
-            JsonParser jsonParser = Mockito.mock(JsonParser.class);
-//            when(jsonParser.getCodec()).thenReturn(objectCodec);
-
-            return jsonParser;
+            return Mockito.mock(JsonParser.class);
         }
 
     }

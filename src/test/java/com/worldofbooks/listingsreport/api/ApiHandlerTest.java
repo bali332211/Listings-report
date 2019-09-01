@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -33,6 +34,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 public class ApiHandlerTest {
 
     private MockRestServiceServer mockServer;
+
+    @Autowired
     private ApiHandler apiHandler;
 
     @Autowired
@@ -40,7 +43,6 @@ public class ApiHandlerTest {
 
     @Before
     public void setUp() {
-        restTemplate = new RestTemplate();
         apiHandler = new ApiHandler(restTemplate);
         mockServer = MockRestServiceServer.createServer(restTemplate);
     }
@@ -71,16 +73,5 @@ public class ApiHandlerTest {
         assertThat(listingFromApi.getId(), is("testId"));
         assertThat(listingFromApi.getDescription(), is("testDescription"));
         assertThat(listingFromApi.getOwnerEmailAddress(), is("testEmail"));
-    }
-
-    @Configuration
-    public static class Config {
-
-        @Bean(name = "TestRestTemplateConfiguration")
-        @Primary
-        public RestTemplate restTemplate() {
-            return Mockito.mock(RestTemplate.class);
-        }
-
     }
 }
