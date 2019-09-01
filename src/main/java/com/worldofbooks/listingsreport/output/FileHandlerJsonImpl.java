@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.io.FileWriter;
 
 @Component
-public class FileHandlerJSONImpl implements FileHandlerJSON {
+public class FileHandlerJsonImpl implements FileHandlerJson {
 
     private String fileName = "report.json";
 

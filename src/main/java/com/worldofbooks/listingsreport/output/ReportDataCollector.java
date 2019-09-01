@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class ReportDataCollector implements ReportProcessor {
 
     private MarketplaceRepository marketplaceRepository;
-    private FileHandlerJSON fileHandlerJSON;
+    private FileHandlerJson fileHandlerJSON;
 
     @Value(value = "${worldofbooks.ebay.name}")
     private String ebayName;
@@ -23,7 +23,7 @@ public class ReportDataCollector implements ReportProcessor {
     private String amazonName;
 
     @Autowired
-    public ReportDataCollector(MarketplaceRepository marketplaceRepository, FileHandlerJSON fileHandlerJSON) {
+    public ReportDataCollector(MarketplaceRepository marketplaceRepository, FileHandlerJson fileHandlerJSON) {
         this.marketplaceRepository = marketplaceRepository;
         this.fileHandlerJSON = fileHandlerJSON;
     }

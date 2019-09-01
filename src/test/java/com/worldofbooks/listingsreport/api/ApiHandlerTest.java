@@ -5,13 +5,8 @@ import com.worldofbooks.listingsreport.TestService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -66,10 +61,10 @@ public class ApiHandlerTest {
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(TestService.convertToJson(Arrays.asList(listing)), MediaType.APPLICATION_JSON));
 
-        List<Listing> listings = apiHandler.getEntitiesFromAPI(url, Listing.class);
+        List<Listing> listingsFromApi = apiHandler.getEntitiesFromAPI(url, Listing.class);
 
         mockServer.verify();
-        Listing listingFromApi = listings.get(0);
+        Listing listingFromApi = listingsFromApi.get(0);
         assertThat(listingFromApi.getId(), is("testId"));
         assertThat(listingFromApi.getDescription(), is("testDescription"));
         assertThat(listingFromApi.getOwnerEmailAddress(), is("testEmail"));

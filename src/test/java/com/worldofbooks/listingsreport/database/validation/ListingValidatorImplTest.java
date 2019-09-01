@@ -62,7 +62,7 @@ public class ListingValidatorImplTest {
     @Test
     public void validateListings() {
         Listing listingAllowed = new ListingBuilder("6022bade-659e-448a-a9fc-f588609f9b6b", "testTitle")
-                .listingPrice(15.01)
+                .listingPrice(15.72)
                 .listingStatus(4)
                 .locationId("testLocationId")
                 .marketplace(2)
@@ -118,7 +118,7 @@ public class ListingValidatorImplTest {
         List<Listing> listingsCaptorValue = listingsCaptor.getValue();
         Listing validatedListing = listingsCaptorValue.get(0);
         assertThat(validatedListing.getId(), Matchers.is("6022bade-659e-448a-a9fc-f588609f9b6b"));
-        assertThat(validatedListing.getListingPrice(), Matchers.is(15.01D));
+        assertThat(validatedListing.getListingPrice(), Matchers.is(15.72D));
         verifyNoMoreInteractions(reportProcessor);
     }
 

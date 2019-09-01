@@ -1,5 +1,5 @@
 package com.worldofbooks.listingsreport.output;
 
-public interface FileHandlerJSON {
+public interface FileHandlerJson {
     void handleReportData(ReportDto reportDto);
 }
