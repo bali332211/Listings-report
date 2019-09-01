@@ -23,6 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -53,6 +54,10 @@ public class ListingValidatorImplTest {
 
     @Captor
     private ArgumentCaptor<ArrayList<Listing>> listingsCaptor;
+    @Captor
+    private ArgumentCaptor<Set<ConstraintViolation<Listing>>> violationsArgument;
+    @Captor
+    private ArgumentCaptor<ArrayList<String>> referenceViolationsArgument;
 
     @Test
     public void validateListings() {
@@ -96,8 +101,12 @@ public class ListingValidatorImplTest {
 
         ArgumentCaptor<Listing> listingArgument = ArgumentCaptor.forClass(Listing.class);
         verify(violationWriterCsv, times(1))
-                .processViolations(any(), any(), listingArgument.capture());
+                .processViolations(violationsArgument.capture(), referenceViolationsArgument.capture(), listingArgument.capture());
 
+        Set<ConstraintViolation<Listing>> violationsArgumentValue = violationsArgument.getValue();
+        assertThat(violationsArgumentValue.size(), Matchers.is(7));
+        List<String> referenceViolationsArgumentValue = referenceViolationsArgument.getValue();
+        assertThat(referenceViolationsArgumentValue.size(), Matchers.is(3));
         Listing listingArgumentValue = listingArgument.getValue();
         assertThat(listingArgumentValue.getId(), Matchers.is("testId"));
         assertThat(listingArgumentValue.getListingPrice(), Matchers.is(15D));
@@ -105,10 +114,12 @@ public class ListingValidatorImplTest {
 
         verify(reportProcessor, times(1))
                 .collectReportData(listingsCaptor.capture());
+
         List<Listing> listingsCaptorValue = listingsCaptor.getValue();
         Listing validatedListing = listingsCaptorValue.get(0);
         assertThat(validatedListing.getId(), Matchers.is("6022bade-659e-448a-a9fc-f588609f9b6b"));
         assertThat(validatedListing.getListingPrice(), Matchers.is(15.01D));
+        verifyNoMoreInteractions(reportProcessor);
     }
 
     @Configuration
