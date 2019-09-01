@@ -1,6 +1,7 @@
 package com.worldofbooks.listingsreport;
 
 import com.worldofbooks.listingsreport.api.Listing;
+
 import java.time.LocalDate;
 
 public class ListingBuilder {
@@ -74,7 +75,4 @@ public class ListingBuilder {
                 currency, quantity, listingStatus,
                 marketplace, uploadTime, ownerEmailAddress);
     }
-
-
-
 }

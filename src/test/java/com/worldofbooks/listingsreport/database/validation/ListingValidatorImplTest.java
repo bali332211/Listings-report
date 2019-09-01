@@ -142,12 +142,11 @@ public class ListingValidatorImplTest {
             ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
             return factory.getValidator();
         }
+
         @Bean(name = "TestListingValidatorConfiguration")
         @Primary
         public ListingValidator listingValidator() {
             return new ListingValidatorImpl(validator(), reportProcessor());
         }
     }
-
-
 }

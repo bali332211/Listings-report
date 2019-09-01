@@ -14,13 +14,13 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(classes = ListingsreportApplication.class, webEnvironment = RANDOM_PORT)
 public class ListingsreportApplicationTests {
 
-	@Autowired
-	private ReportDataCollector reportDataCollector;
-	@Autowired
-	private DatabaseService databaseService;
+    @Autowired
+    private ReportDataCollector reportDataCollector;
+    @Autowired
+    private DatabaseService databaseService;
 
-	@Test
-	public void contextLoads() {
-	}
+    @Test
+    public void contextLoads() {
+    }
 
 }

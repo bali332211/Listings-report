@@ -95,6 +95,7 @@ public class ReportDataCollectorTest {
         assertThat(reportDtoArgumentValue.getAverageEbayListingPrice(), Matchers.is(30D));
         assertThat(reportDtoArgumentValue.getAverageAmazonListingPrice(), Matchers.is(0D));
         assertThat(reportDtoArgumentValue.getBestListerEmail(), Matchers.is("testEmail@email.com"));
+
         List<MonthlyReport> monthlyReports = reportDtoArgumentValue.getMonthlyReports();
         int monthlyReportsSize = monthlyReports.size();
         assertThat(monthlyReportsSize, Matchers.is(2));

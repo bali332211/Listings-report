@@ -25,6 +25,4 @@ public class UUIDValidator implements
             return false;
         }
     }
-
-
 }

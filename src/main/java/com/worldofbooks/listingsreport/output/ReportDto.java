@@ -167,7 +167,3 @@ class MonthlyReport extends MarketplaceData {
         this.month = month;
     }
 }
-
-
-
-
