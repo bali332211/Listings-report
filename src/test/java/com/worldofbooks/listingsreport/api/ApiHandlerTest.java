@@ -7,9 +7,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import org.springframework.web.client.RestTemplate;
@@ -25,12 +30,11 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class ApiHandlerTest {
 
     private MockRestServiceServer mockServer;
 
-    @Autowired
     private ApiHandler apiHandler;
 
     @Autowired
@@ -45,28 +49,38 @@ public class ApiHandlerTest {
     @Test
     public void getEntitiesFromAPI() throws IOException {
         Listing listing = new ListingBuilder("testId", "testTitle")
-                .listingPrice(15)
-                .listingStatus(4)
-                .currency("testCurrency")
-                .description("testDescription")
-                .locationId("testLocationId")
-                .marketplace(7)
-                .ownerEmailAddress("testEmail")
-                .quantity(1)
-                .createListing();
+            .listingPrice(15)
+            .listingStatus(4)
+            .currency("testCurrency")
+            .description("testDescription")
+            .locationId("testLocationId")
+            .marketplace(7)
+            .ownerEmailAddress("testEmail")
+            .quantity(1)
+            .createListing();
 
         String url = "https://my.api.mockaroo.com/listing?key=63304c70";
 
         mockServer.expect(requestTo(url))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess(TestService.convertToJson(Arrays.asList(listing)), MediaType.APPLICATION_JSON));
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(withSuccess(TestService.convertToJson(Arrays.asList(listing)), MediaType.APPLICATION_JSON));
 
         List<Listing> listingsFromApi = apiHandler.getEntitiesFromAPI(url, Listing.class);
-
         mockServer.verify();
+
         Listing listingFromApi = listingsFromApi.get(0);
         assertThat(listingFromApi.getId(), is("testId"));
         assertThat(listingFromApi.getDescription(), is("testDescription"));
         assertThat(listingFromApi.getOwnerEmailAddress(), is("testEmail"));
     }
+
+    @Configuration
+    public static class Config {
+
+        @Bean
+        public RestTemplate restTemplate() {
+            return new RestTemplateBuilder().build();
+        }
+    }
+
 }

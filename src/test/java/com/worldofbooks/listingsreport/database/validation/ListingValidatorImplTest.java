@@ -43,20 +43,9 @@ public class ListingValidatorImplTest {
 
     @Autowired
     private ListingValidator listingValidator;
-    @Autowired
-    private ViolationWriterCsv violationWriterCsv;
 
     @Autowired
     private Validator validator;
-    @Autowired
-    private ReportProcessor reportProcessor;
-
-    @Captor
-    private ArgumentCaptor<ArrayList<Listing>> listingsCaptor;
-    @Captor
-    private ArgumentCaptor<Set<ConstraintViolation<Listing>>> violationsArgument;
-    @Captor
-    private ArgumentCaptor<ArrayList<String>> referenceViolationsArgument;
 
     @Test
     public void validateListings() {
@@ -94,47 +83,26 @@ public class ListingValidatorImplTest {
         ReferenceDataSet referenceDataSet = new ReferenceDataSet(Arrays.asList(status), Arrays.asList(location), Arrays.asList(marketplace));
         ListingDataSet listingDataSet = new ListingDataSet(Arrays.asList(listingAllowed, listingNotAllowed), referenceDataSet);
 
-        List<Listing> validatedListings = listingValidator.validateListings(listingDataSet, violationWriterCsv);
+        ListingValidationResult listingValidationResult = listingValidator.validateListings(listingDataSet);
 
+        List<Listing> validatedListings = listingValidationResult.getValidatedListings();
         assertThat(validatedListings.size(), is(1));
-
-        ArgumentCaptor<Listing> listingArgument = ArgumentCaptor.forClass(Listing.class);
-        verify(violationWriterCsv, times(1))
-                .processViolations(violationsArgument.capture(), referenceViolationsArgument.capture(), listingArgument.capture());
-
-        Set<ConstraintViolation<Listing>> violationsArgumentValue = violationsArgument.getValue();
-        assertThat(violationsArgumentValue.size(), Matchers.is(7));
-        List<String> referenceViolationsArgumentValue = referenceViolationsArgument.getValue();
-        assertThat(referenceViolationsArgumentValue.size(), Matchers.is(3));
-        Listing listingArgumentValue = listingArgument.getValue();
-        assertThat(listingArgumentValue.getId(), Matchers.is("testId"));
-        assertThat(listingArgumentValue.getListingPrice(), Matchers.is(15D));
-        verifyNoMoreInteractions(violationWriterCsv);
-
-        verify(reportProcessor, times(1))
-                .collectReportData(listingsCaptor.capture());
-
-        List<Listing> listingsCaptorValue = listingsCaptor.getValue();
-        Listing validatedListing = listingsCaptorValue.get(0);
+        Listing validatedListing = validatedListings.get(0);
         assertThat(validatedListing.getId(), Matchers.is("6022bade-659e-448a-a9fc-f588609f9b6b"));
         assertThat(validatedListing.getListingPrice(), Matchers.is(15.72D));
-        verifyNoMoreInteractions(reportProcessor);
+
+        List<ViolationDataSet> violationDataSets = listingValidationResult.getViolationDataSets();
+        assertThat(violationDataSets.size(), Matchers.is(1));
+        ViolationDataSet violationDataSetFirst = violationDataSets.get(0);
+        assertThat(violationDataSetFirst.getViolations().size(), Matchers.is(7));
+        assertThat( violationDataSetFirst.getReferenceViolations().size(), Matchers.is(3));
+        Listing listingViolating = violationDataSetFirst.getListing();
+        assertThat(listingViolating.getId(), Matchers.is("testId"));
+        assertThat(listingViolating.getListingPrice(), Matchers.is(15D));
     }
 
     @Configuration
     public static class Config {
-
-        @Bean(name = "TestViolationWriterCsvConfiguration")
-        @Primary
-        public ViolationWriterCsv violationWriterCsv() {
-            return Mockito.mock(ViolationWriterCsv.class);
-        }
-
-        @Bean(name = "TestReportProcessorConfiguration")
-        @Primary
-        public ReportProcessor reportProcessor() {
-            return Mockito.mock(ReportProcessor.class);
-        }
 
         @Bean(name = "TestValidatorConfiguration")
         @Primary
@@ -146,7 +114,7 @@ public class ListingValidatorImplTest {
         @Bean(name = "TestListingValidatorConfiguration")
         @Primary
         public ListingValidator listingValidator() {
-            return new ListingValidatorImpl(validator(), reportProcessor());
+            return new ListingValidatorImpl(validator());
         }
     }
 }

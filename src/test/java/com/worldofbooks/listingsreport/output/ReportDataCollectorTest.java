@@ -33,13 +33,11 @@ public class ReportDataCollectorTest {
     private ReportDataCollector reportDataCollector;
 
     @Autowired
-    private FileHandlerJson fileHandlerJson;
-    @Autowired
     private MarketplaceRepository marketplaceRepository;
 
     @Before
     public void setup() {
-        reportDataCollector = new ReportDataCollector(marketplaceRepository, fileHandlerJson);
+        reportDataCollector = new ReportDataCollector(marketplaceRepository);
     }
 
     @Test
@@ -84,19 +82,14 @@ public class ReportDataCollectorTest {
                 .quantity(1)
                 .createListing();
 
-        reportDataCollector.collectReportData(Arrays.asList(listingAllowed, listingAllowed2, listingAllowed3));
+        ReportDto reportDto = reportDataCollector.collectReportData(Arrays.asList(listingAllowed, listingAllowed2, listingAllowed3));
 
-        ArgumentCaptor<ReportDto> reportDtoArgument = ArgumentCaptor.forClass(ReportDto.class);
-        verify(fileHandlerJson, times(1))
-                .handleReportData(reportDtoArgument.capture());
+        assertThat(reportDto.getListingCount(), Matchers.is(3));
+        assertThat(reportDto.getAverageEbayListingPrice(), Matchers.is(30D));
+        assertThat(reportDto.getAverageAmazonListingPrice(), Matchers.is(0D));
+        assertThat(reportDto.getBestListerEmail(), Matchers.is("testEmail@email.com"));
 
-        ReportDto reportDtoArgumentValue = reportDtoArgument.getValue();
-        assertThat(reportDtoArgumentValue.getListingCount(), Matchers.is(3));
-        assertThat(reportDtoArgumentValue.getAverageEbayListingPrice(), Matchers.is(30D));
-        assertThat(reportDtoArgumentValue.getAverageAmazonListingPrice(), Matchers.is(0D));
-        assertThat(reportDtoArgumentValue.getBestListerEmail(), Matchers.is("testEmail@email.com"));
-
-        List<MonthlyReport> monthlyReports = reportDtoArgumentValue.getMonthlyReports();
+        List<MonthlyReport> monthlyReports = reportDto.getMonthlyReports();
         int monthlyReportsSize = monthlyReports.size();
         assertThat(monthlyReportsSize, Matchers.is(2));
         MonthlyReport monthlyReportFirst = monthlyReports.get(0);
@@ -106,10 +99,7 @@ public class ReportDataCollectorTest {
         assertThat(monthlyReportLast.getTotalEbayListingCount(), Matchers.is(1));
         assertThat(monthlyReportLast.getTotalEbayListingPrice(), Matchers.is(50.12D));
         assertThat(monthlyReportLast.getAverageEbayListingPrice(), Matchers.is(50.12D));
-        verifyNoMoreInteractions(fileHandlerJson);
-
     }
-
 
     @Configuration
     public static class Config {
