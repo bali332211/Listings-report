@@ -1,7 +1,6 @@
 package com.worldofbooks.listingsreport;
 
-import com.worldofbooks.listingsreport.database.DatabaseService;
-import com.worldofbooks.listingsreport.output.ReportDataCollector;
+import com.worldofbooks.listingsreport.database.ReportMaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -11,9 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ListingsreportApplication implements CommandLineRunner  {
 
 	@Autowired
-	private ReportDataCollector reportDataCollector;
-	@Autowired
-	private DatabaseService databaseService;
+	private ReportMaker reportMaker;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ListingsreportApplication.class, args);
@@ -21,6 +18,7 @@ public class ListingsreportApplication implements CommandLineRunner  {
 
 	@Override
 	public void run(String... args) throws Exception {
-		databaseService.initDatabase();
+		reportMaker.generateListingReport();
+		System.out.println("Report generated");
 	}
 }

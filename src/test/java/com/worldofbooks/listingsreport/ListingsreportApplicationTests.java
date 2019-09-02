@@ -1,7 +1,6 @@
 package com.worldofbooks.listingsreport;
 
-import com.worldofbooks.listingsreport.database.DatabaseService;
-import com.worldofbooks.listingsreport.output.ReportDataCollector;
+import com.worldofbooks.listingsreport.database.ReportMaker;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +14,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class ListingsreportApplicationTests {
 
     @Autowired
-    private ReportDataCollector reportDataCollector;
-    @Autowired
-    private DatabaseService databaseService;
+    private ReportMaker reportMaker;
 
     @Test
     public void contextLoads() {
