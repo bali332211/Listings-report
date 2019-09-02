@@ -17,8 +17,8 @@ public class ListingsreportApplication implements CommandLineRunner  {
 	}
 
 	@Override
-	public void run(String... args) throws Exception {
-		reportMaker.generateListingReport();
+	public void run(String... args) {
+		reportMaker.generateListingReport(args[0], args[1]);
 		System.out.println("Report generated");
 	}
 }

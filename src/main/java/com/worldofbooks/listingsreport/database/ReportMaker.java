@@ -6,17 +6,16 @@ import com.worldofbooks.listingsreport.api.*;
 import com.worldofbooks.listingsreport.database.validation.ViolationDataSet;
 import com.worldofbooks.listingsreport.output.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.ConstraintViolation;
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class ReportMaker {
@@ -26,6 +25,15 @@ public class ReportMaker {
     private ApiHandler apiHandler;
     private ListingValidator listingValidator;
     private ReportProcessor reportProcessor;
+
+    @Value(value = "${ftp.server}")
+    private String ftpServer;
+    @Value(value = "${ftp.port}")
+    private String ftpPort;
+    @Value(value = "${ftp.user}")
+    private String ftpUser;
+    @Value(value = "${ftp.password}")
+    private String ftpPassword;
 
     @Autowired
     public ReportMaker(DatabaseHandler databaseHandler, ListingRepository listingRepository,
@@ -38,52 +46,37 @@ public class ReportMaker {
     }
 
     @Transactional
-    public void generateListingReport() throws IOException {
+    public void generateListingReport(String localReportPath, String ftpPath) {
         ListingDataSet listingDataSet = apiHandler.getListingDataSetFromApi();
         databaseHandler.saveReferences(listingDataSet.getReferenceDataSet());
 
         ListingValidationResult listingValidationResult = listingValidator.validateListings(listingDataSet);
 
         List<Listing> validatedListings = listingValidationResult.getValidatedListings();
-        List<ViolationDataSet> violationDataSets = listingValidationResult.getViolationDataSets();
-
-
-        try (ViolationWriterCsv violationWriterCsv = new ViolationWriterCsv()) {
-            
-            violationDataSets.forEach(violationDataSet -> {
-                Set<ConstraintViolation<Listing>> violations = violationDataSet.getViolations();
-                List<String> referenceViolations = violationDataSet.getReferenceViolations();
-                Listing listing = violationDataSet.getListing();
-                violationWriterCsv.processViolations(violations, referenceViolations, listing);
-            });
-
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-
-
         databaseHandler.saveEntities(validatedListings, listingRepository);
 
-        ReportDto reportDto = reportProcessor.collectReportData(validatedListings);
+        try (ViolationWriterCsv violationWriterCsv = new ViolationWriterCsv();
+             FtpClient ftpClient = new FtpClient(ftpServer, Integer.parseInt(ftpPort), ftpUser, ftpPassword)) {
+            List<ViolationDataSet> violationDataSets = listingValidationResult.getViolationDataSets();
+            violationWriterCsv.processViolations(violationDataSets);
 
-        try (FtpClient ftpClient = new FtpClient("localhost", 21, "bali", "password")) {
-            ftpClient.open();
-
-            File file = new File("report.json");
-            ftpClient.putFileToPath(file, "/report.json");
-        }
-
-        try {Path path = Files.createTempFile("report", "json");
-
-            FileHandlerJson fileHandlerJson = new FileHandlerJsonImpl(path);
+            ReportDto reportDto = reportProcessor.collectReportData(validatedListings);
+            FileHandlerJson fileHandlerJson = new FileHandlerJsonImpl(localReportPath);
             fileHandlerJson.handleReportData(reportDto);
 
-            Files.delete(path);
-
+            ftpClient.open();
+            ftpClient.sendToFtp(localReportPath, ftpPath);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
+        try {
+            Path pathToDelete = Paths.get(localReportPath);
+            Files.delete(pathToDelete);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
     }
 
 }

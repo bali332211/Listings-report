@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class FtpClient implements AutoCloseable {
 
@@ -22,6 +25,11 @@ public class FtpClient implements AutoCloseable {
         this.port = port;
         this.user = user;
         this.password = password;
+    }
+
+    public void sendToFtp(String localReportPath, String ftpPath) throws IOException {
+        File file = new File(localReportPath);
+        putFileToPath(file, ftpPath);
     }
 
     public void open() throws IOException {
@@ -48,7 +56,7 @@ public class FtpClient implements AutoCloseable {
 
     public void putFileToPath(File file, String path) throws IOException {
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            ftp.storeFile(path, new FileInputStream(file));
+            ftp.storeFile(path, fileInputStream);
         }
     }
 }

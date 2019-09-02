@@ -1,12 +1,10 @@
 package com.worldofbooks.listingsreport.output;
 
-import com.worldofbooks.listingsreport.api.Listing;
+import com.worldofbooks.listingsreport.database.validation.ViolationDataSet;
 
-import javax.validation.ConstraintViolation;
 import java.util.List;
-import java.util.Set;
 
 public interface ViolationProcessor {
 
-    void processViolations(Set<ConstraintViolation<Listing>> violations, List<String> referenceViolations, Listing listing);
+    void processViolations(List<ViolationDataSet> violationDataSets);
 }

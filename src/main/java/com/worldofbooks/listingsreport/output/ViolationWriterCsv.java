@@ -1,6 +1,7 @@
 package com.worldofbooks.listingsreport.output;
 
 import com.worldofbooks.listingsreport.api.Listing;
+import com.worldofbooks.listingsreport.database.validation.ViolationDataSet;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
@@ -28,14 +29,21 @@ public class ViolationWriterCsv implements ViolationProcessor, Closeable {
     }
 
     @Override
-    public void processViolations(Set<ConstraintViolation<Listing>> violations, List<String> referenceViolations, Listing listing) {
-        List<ViolationDto> violationDtos = getViolationDtosForCSV(violations, referenceViolations, listing);
+    public void processViolations(List<ViolationDataSet> violationDataSets) {
+        violationDataSets.forEach(violationDataSet -> {
+            Set<ConstraintViolation<Listing>> violations = violationDataSet.getViolations();
+            List<String> referenceViolations = violationDataSet.getReferenceViolations();
+            Listing listing = violationDataSet.getListing();
 
-        try {
-            writeDtosToCSV(violationDtos);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            List<ViolationDto> violationDtos = getViolationDtosForCSV(violations, referenceViolations, listing);
+
+            try {
+                writeDtosToCSV(violationDtos);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
 
     }
 
