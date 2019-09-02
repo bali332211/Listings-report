@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface ListingValidator {
 
-    List<Listing> validateListings(ListingDataSet listingDataSet, ViolationWriterCsv violationWriterCsv);
+    ListingValidationResult validateListings(ListingDataSet listingDataSet);
 }

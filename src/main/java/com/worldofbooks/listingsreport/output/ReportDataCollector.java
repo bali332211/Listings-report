@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,7 +19,6 @@ import java.util.stream.Collectors;
 public class ReportDataCollector implements ReportProcessor {
 
     private MarketplaceRepository marketplaceRepository;
-    private FileHandlerJson fileHandlerJSON;
 
     @Value(value = "${worldofbooks.ebay.name}")
     private String ebayName;
@@ -23,21 +26,18 @@ public class ReportDataCollector implements ReportProcessor {
     private String amazonName;
 
     @Autowired
-    public ReportDataCollector(MarketplaceRepository marketplaceRepository, FileHandlerJson fileHandlerJSON) {
+    public ReportDataCollector(MarketplaceRepository marketplaceRepository) {
         this.marketplaceRepository = marketplaceRepository;
-        this.fileHandlerJSON = fileHandlerJSON;
     }
 
     @Override
-    public void collectReportData(List<Listing> listings) {
+    public ReportDto collectReportData(List<Listing> listings) {
         Marketplace ebay = marketplaceRepository.findByMarketplaceName(ebayName);
         Marketplace amazon = marketplaceRepository.findByMarketplaceName(amazonName);
         int ebayId = ebay.getId();
         int amazonId = amazon.getId();
 
-        ReportDto reportDto = makeReportDto(listings, ebayId, amazonId);
-
-        fileHandlerJSON.handleReportData(reportDto);
+        return makeReportDto(listings, ebayId, amazonId);
     }
 
     private ReportDto makeReportDto(List<Listing> listings, int ebayId, int amazonId) {
@@ -55,9 +55,9 @@ public class ReportDataCollector implements ReportProcessor {
 
     private List<MonthlyReport> getMonthlyReports(List<Listing> listings, int ebayId, int amazonId) {
         List<Listing> listingsWithUploadTime = listings.stream()
-                .filter(listing -> listing.getUploadTime() != null)
-                .sorted(new SortByUploadTime())
-                .collect(Collectors.toList());
+            .filter(listing -> listing.getUploadTime() != null)
+            .sorted(new SortByUploadTime())
+            .collect(Collectors.toList());
 
         List<MonthlyReport> monthlyReports = new ArrayList<>();
 

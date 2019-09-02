@@ -21,22 +21,21 @@ import java.util.Set;
 public class ListingValidatorImpl implements ListingValidator {
 
     private Validator validator;
-    private ReportProcessor reportProcessor;
 
     @Autowired
-    public ListingValidatorImpl(Validator validator, ReportProcessor reportProcessor) {
+    public ListingValidatorImpl(Validator validator) {
         this.validator = validator;
-        this.reportProcessor = reportProcessor;
     }
 
     @Override
-    public List<Listing> validateListings(ListingDataSet listingDataSet, ViolationWriterCsv violationWriterCsv) {
+    public ListingValidationResult validateListings(ListingDataSet listingDataSet) {
         List<Listing> listings = listingDataSet.getListings();
         List<Status> statuses = listingDataSet.getReferenceDataSet().getStatuses();
         List<Location> locations = listingDataSet.getReferenceDataSet().getLocations();
         List<Marketplace> marketplaces = listingDataSet.getReferenceDataSet().getMarketplaces();
 
         List<Listing> validatedListings = new ArrayList<>();
+        List<ViolationDataSet> violationDataSets = new ArrayList<>();
 
         int[] statusIds = getStatusIds(statuses);
         List<String> locationIds = getLocationIds(locations);
@@ -49,11 +48,10 @@ public class ListingValidatorImpl implements ListingValidator {
             if (violations.isEmpty() && referenceViolations.isEmpty()) {
                 validatedListings.add(listing);
             } else {
-                violationWriterCsv.processViolations(violations, referenceViolations, listing);
+                violationDataSets.add(new ViolationDataSet(listing, violations, referenceViolations));
             }
         });
-        reportProcessor.collectReportData(validatedListings);
-        return validatedListings;
+        return new ListingValidationResult(validatedListings, violationDataSets);
     }
 
     private List<String> validateForeignKeyReferences(Listing listing, int[] statusIds, List<String> locationIds, int[] marketplaceIds) {

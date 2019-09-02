@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface ReportProcessor {
 
-    void collectReportData(List<Listing> listings);
+    ReportDto collectReportData(List<Listing> listings);
 }
