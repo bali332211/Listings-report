@@ -11,6 +11,9 @@ public class ViolationDataSet {
     private Set<ConstraintViolation<Listing>> violations;
     private List<String> referenceViolations;
 
+    public ViolationDataSet() {
+    }
+
     public ViolationDataSet(Listing listing, Set<ConstraintViolation<Listing>> violations, List<String> referenceViolations) {
         this.listing = listing;
         this.violations = violations;

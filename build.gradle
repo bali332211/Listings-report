@@ -21,6 +21,7 @@ pitest {
 					 'com.worldofbooks.listingsreport.database.DatabaseHandler',
 					 'com.worldofbooks.listingsreport.output.ReportDataCollector',
 					 'com.worldofbooks.listingsreport.output.FtpClient',
+					 'com.worldofbooks.listingsreport.output.ViolationWriterCsv',
 					 'com.worldofbooks.listingsreport.output.ReportDto']
 	targetTests = ['com.worldofbooks.listingsreport.api.**',
 				   'com.worldofbooks.listingsreport.database.**',

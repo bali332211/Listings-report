@@ -3,8 +3,12 @@ package com.worldofbooks.listingsreport.output;
 import com.worldofbooks.listingsreport.ListingBuilder;
 import com.worldofbooks.listingsreport.api.Listing;
 import com.worldofbooks.listingsreport.database.validation.ViolationDataSet;
-import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintValidatorContextImpl;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,21 +18,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.validation.*;
-import java.io.IOException;
-import java.lang.reflect.Array;
+import java.io.*;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class ViolationWriterCsvTest {
 
-
+    @ClassRule
+    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
 
     @Autowired
     private Validator validator;
@@ -51,12 +54,16 @@ public class ViolationWriterCsvTest {
         List<String> referenceViolations = Arrays.asList("listingStatus", "locationId", "marketplace");
         ViolationDataSet violationDataSet = new ViolationDataSet(listingNotAllowed, violations, referenceViolations);
 
-        Path testLogPath = Paths.get("testLog.csv");
+        Path testLogPath = TEMPORARY_FOLDER.newFile("testLog.csv").toPath();
         try (ViolationWriterCsv violationWriterCsv = new ViolationWriterCsv(testLogPath)) {
             violationWriterCsv.processViolations(Collections.singletonList(violationDataSet));
         }
 
-
+        try (BufferedReader reader = new BufferedReader(new FileReader(testLogPath.toString()))) {
+            CSVParser csvRecords = new CSVParser(reader, CSVFormat.DEFAULT);
+            List<CSVRecord> records = csvRecords.getRecords();
+            assertThat(records.size(), is(11));
+        }
     }
 
     @Configuration

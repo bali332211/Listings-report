@@ -9,6 +9,7 @@ import javax.validation.ConstraintViolation;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class ViolationWriterCsv implements ViolationProcessor, Closeable {
             try {
                 writeDtosToCSV(violationDtos);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new UncheckedIOException(e);
             }
         });
     }
@@ -49,7 +50,6 @@ public class ViolationWriterCsv implements ViolationProcessor, Closeable {
             csvPrinter.printRecord(violationDto.listingId, String.valueOf(violationDto.marketplaceName), violationDto.fieldName);
         }
     }
-
 
     private List<ViolationDto> getViolationDtosForCSV(Set<ConstraintViolation<Listing>> violations, List<String> referenceViolations, Listing listing) {
         List<ViolationDto> violationDtos = new ArrayList<>();
