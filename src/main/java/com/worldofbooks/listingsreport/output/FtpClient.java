@@ -26,7 +26,7 @@ public class FtpClient implements AutoCloseable {
 
     public void sendToFtp(String localReportPath, String ftpPath) throws IOException {
         File file = new File(localReportPath);
-        putFileToPath(file, ftpPath);
+        uploadToFtp(file, ftpPath);
     }
 
     public void open() throws IOException {
@@ -51,7 +51,7 @@ public class FtpClient implements AutoCloseable {
         }
     }
 
-    public void putFileToPath(File file, String path) throws IOException {
+    private void uploadToFtp(File file, String path) throws IOException {
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             ftp.storeFile(path, fileInputStream);
         }

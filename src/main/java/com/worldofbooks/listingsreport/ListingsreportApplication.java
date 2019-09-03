@@ -1,6 +1,6 @@
 package com.worldofbooks.listingsreport;
 
-import com.worldofbooks.listingsreport.database.ReportMaker;
+import com.worldofbooks.listingsreport.output.ReportMaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

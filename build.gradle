@@ -20,6 +20,7 @@ pitest {
 					 'com.worldofbooks.listingsreport.database.validation.**',
 					 'com.worldofbooks.listingsreport.database.DatabaseHandler',
 					 'com.worldofbooks.listingsreport.output.ReportDataCollector',
+					 'com.worldofbooks.listingsreport.output.FtpClient',
 					 'com.worldofbooks.listingsreport.output.ReportDto']
 	targetTests = ['com.worldofbooks.listingsreport.api.**',
 				   'com.worldofbooks.listingsreport.database.**',
@@ -45,7 +46,7 @@ dependencies {
 
 	testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
 	testImplementation group: 'com.h2database', name: 'h2', version: '1.4.199'
-	testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.0.4'
+	testImplementation group: 'org.mockftpserver', name: 'MockFtpServer', version: '2.7.1'
 
 
 	runtimeOnly 'org.postgresql:postgresql'

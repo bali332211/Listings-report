@@ -1,6 +1,6 @@
 package com.worldofbooks.listingsreport;
 
-import com.worldofbooks.listingsreport.database.ReportMaker;
+import com.worldofbooks.listingsreport.output.ReportMaker;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
