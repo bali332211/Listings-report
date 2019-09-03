@@ -9,20 +9,17 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class FileHandlerJsonImpl implements FileHandlerJson {
 
-    private String path;
+    private Path localReportPath;
 
-    public FileHandlerJsonImpl(String path) {
-        this.path = path;
+    public FileHandlerJsonImpl(Path localReportPath) {
+        this.localReportPath = localReportPath;
     }
 
     @Override
     public void handleReportData(ReportDto reportDto) {
-        Path localReportPath = Paths.get(path);
-
         try (Writer output = Files.newBufferedWriter(localReportPath, StandardCharsets.UTF_8);
              JsonWriter jsonWriter = new JsonWriter(output)) {
 

@@ -4,9 +4,7 @@ import com.worldofbooks.listingsreport.api.Listing;
 import com.worldofbooks.listingsreport.api.Location;
 import com.worldofbooks.listingsreport.api.Marketplace;
 import com.worldofbooks.listingsreport.api.Status;
-import com.worldofbooks.listingsreport.database.ListingDataSet;
-import com.worldofbooks.listingsreport.output.ViolationWriterCsv;
-import com.worldofbooks.listingsreport.output.ReportProcessor;
+import com.worldofbooks.listingsreport.api.ListingDataSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

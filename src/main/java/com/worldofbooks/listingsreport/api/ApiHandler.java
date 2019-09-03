@@ -1,6 +1,5 @@
 package com.worldofbooks.listingsreport.api;
 
-import com.worldofbooks.listingsreport.database.ListingDataSet;
 import com.worldofbooks.listingsreport.database.ReferenceDataSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

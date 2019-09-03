@@ -1,13 +1,12 @@
 package com.worldofbooks.listingsreport.output;
 
 import com.worldofbooks.listingsreport.database.DatabaseHandler;
-import com.worldofbooks.listingsreport.database.ListingDataSet;
+import com.worldofbooks.listingsreport.api.ListingDataSet;
 import com.worldofbooks.listingsreport.database.ListingRepository;
 import com.worldofbooks.listingsreport.database.validation.ListingValidationResult;
 import com.worldofbooks.listingsreport.database.validation.ListingValidator;
 import com.worldofbooks.listingsreport.api.*;
 import com.worldofbooks.listingsreport.database.validation.ViolationDataSet;
-import com.worldofbooks.listingsreport.output.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -49,7 +48,7 @@ public class ReportMaker {
     }
 
     @Transactional
-    public void generateListingReport(String localReportPath, String ftpPath) {
+    public void generateListingReport(Path importLogPath, Path localReportPath, String ftpPath) {
         ListingDataSet listingDataSet = apiHandler.getListingDataSetFromApi();
         databaseHandler.saveReferences(listingDataSet.getReferenceDataSet());
 
@@ -58,7 +57,7 @@ public class ReportMaker {
         List<Listing> validatedListings = listingValidationResult.getValidatedListings();
         databaseHandler.saveEntities(validatedListings, listingRepository);
 
-        try (ViolationWriterCsv violationWriterCsv = new ViolationWriterCsv();
+        try (ViolationWriterCsv violationWriterCsv = new ViolationWriterCsv(importLogPath);
              FtpClient ftpClient = new FtpClient(ftpServer, Integer.parseInt(ftpPort), ftpUser, ftpPassword)) {
             List<ViolationDataSet> violationDataSets = listingValidationResult.getViolationDataSets();
             violationWriterCsv.processViolations(violationDataSets);
@@ -74,8 +73,7 @@ public class ReportMaker {
         }
 
         try {
-            Path pathToDelete = Paths.get(localReportPath);
-            Files.delete(pathToDelete);
+            Files.delete(localReportPath);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -5,7 +5,7 @@ import com.worldofbooks.listingsreport.api.Listing;
 import com.worldofbooks.listingsreport.api.Location;
 import com.worldofbooks.listingsreport.api.Marketplace;
 import com.worldofbooks.listingsreport.api.Status;
-import com.worldofbooks.listingsreport.database.ListingDataSet;
+import com.worldofbooks.listingsreport.api.ListingDataSet;
 import com.worldofbooks.listingsreport.database.ReferenceDataSet;
 import org.hamcrest.Matchers;
 import org.junit.Test;

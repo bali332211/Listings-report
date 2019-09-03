@@ -2,7 +2,6 @@ package com.worldofbooks.listingsreport.api;
 
 import com.worldofbooks.listingsreport.ListingBuilder;
 import com.worldofbooks.listingsreport.TestService;
-import com.worldofbooks.listingsreport.database.ListingDataSet;
 import com.worldofbooks.listingsreport.database.ReferenceDataSet;
 import org.junit.Before;
 import org.junit.Test;

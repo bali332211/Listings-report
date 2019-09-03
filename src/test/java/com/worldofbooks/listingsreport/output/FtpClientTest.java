@@ -11,7 +11,9 @@ import org.mockftpserver.fake.filesystem.FileSystem;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import static org.junit.Assert.assertTrue;
 
 public class FtpClientTest {
@@ -45,7 +47,8 @@ public class FtpClientTest {
 
     @Test
     public void sendToFtp() throws IOException {
-        ftpClient.sendToFtp("ftpTest.txt", "/uploadTest.txt");
+        Path path = Paths.get("ftpTest.txt");
+        ftpClient.sendToFtp(path, "/uploadTest.txt");
         assertTrue(fakeFtpServer.getFileSystem().exists("/uploadTest.txt"));
     }
 

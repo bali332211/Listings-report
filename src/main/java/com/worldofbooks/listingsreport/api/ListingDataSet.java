@@ -1,6 +1,6 @@
-package com.worldofbooks.listingsreport.database;
+package com.worldofbooks.listingsreport.api;
 
-import com.worldofbooks.listingsreport.api.Listing;
+import com.worldofbooks.listingsreport.database.ReferenceDataSet;
 
 import java.util.List;
 
