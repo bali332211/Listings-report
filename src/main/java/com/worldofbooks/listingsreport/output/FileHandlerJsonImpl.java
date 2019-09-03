@@ -2,9 +2,7 @@ package com.worldofbooks.listingsreport.output;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
-import org.springframework.stereotype.Component;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
