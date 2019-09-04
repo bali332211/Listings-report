@@ -80,7 +80,11 @@ public class ReportDataCollector implements ReportProcessor {
         return monthlyReports;
     }
 
-    private void updateMonthlyReportsWithListingsOfCurrentMonth(List<MonthlyReport> monthlyReports, List<Listing> listingsOfCurrentMonth, String monthName, int ebayId, int amazonId) {
+    private void updateMonthlyReportsWithListingsOfCurrentMonth(List<MonthlyReport> monthlyReports,
+                                                                List<Listing> listingsOfCurrentMonth,
+                                                                String monthName,
+                                                                int ebayId,
+                                                                int amazonId) {
         MonthlyReport monthlyReport = new MonthlyReport(monthName);
         monthlyReport.updateMarketPlaceDataWithListing(listingsOfCurrentMonth, ebayId, amazonId);
         monthlyReports.add(monthlyReport);

@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
-public class FileHandlerJsonImplTest {
+public class FileHandlerJsonTest {
 
     @ClassRule
     public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
@@ -31,7 +31,7 @@ public class FileHandlerJsonImplTest {
         reportDto.setMonthlyReports(Collections.singletonList(new MonthlyReport("month")));
 
         Path localReportPath = TEMPORARY_FOLDER.newFile("testReport.json").toPath();
-        FileHandlerJson fileHandlerJson = new FileHandlerJsonImpl(localReportPath);
+        FileHandlerJson fileHandlerJson = new FileHandlerJson(localReportPath);
         fileHandlerJson.handleReportData(reportDto);
 
         try (BufferedReader reader = new BufferedReader(new FileReader(localReportPath.toString()))) {

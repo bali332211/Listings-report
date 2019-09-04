@@ -8,7 +8,6 @@ import com.worldofbooks.listingsreport.database.validation.ListingValidator;
 import com.worldofbooks.listingsreport.api.*;
 import com.worldofbooks.listingsreport.database.validation.ViolationDataSet;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,18 +27,13 @@ public class ReportMaker {
     private ReportProcessor reportProcessor;
     private OutputProcessorFactory outputProcessorFactory;
 
-    @Value(value = "${ftp.server}")
-    private String ftpServer;
-    @Value(value = "${ftp.port}")
-    private String ftpPort;
-    @Value(value = "${ftp.user}")
-    private String ftpUser;
-    @Value(value = "${ftp.password}")
-    private String ftpPassword;
-
     @Autowired
-    public ReportMaker(DatabaseHandler databaseHandler, ListingRepository listingRepository,
-                       ApiHandler apiHandler, ListingValidator listingValidator, ReportProcessor reportProcessor, OutputProcessorFactory outputProcessorFactory) {
+    public ReportMaker(DatabaseHandler databaseHandler,
+                       ListingRepository listingRepository,
+                       ApiHandler apiHandler,
+                       ListingValidator listingValidator,
+                       ReportProcessor reportProcessor,
+                       OutputProcessorFactory outputProcessorFactory) {
         this.databaseHandler = databaseHandler;
         this.listingRepository = listingRepository;
         this.apiHandler = apiHandler;
@@ -48,7 +42,7 @@ public class ReportMaker {
         this.outputProcessorFactory = outputProcessorFactory;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void generateListingReport(Path importLogPath, Path localReportPath, String ftpPath) {
         ListingDataSet listingDataSet = apiHandler.getListingDataSetFromApi();
         databaseHandler.saveReferences(listingDataSet.getReferenceDataSet());
@@ -60,7 +54,7 @@ public class ReportMaker {
         ReportDto reportDto = reportProcessor.collectReportData(validatedListings);
 
         try (ViolationWriterCsv violationWriterCsv = outputProcessorFactory.getViolationWriterCsv(importLogPath);
-             FtpClient ftpClient = outputProcessorFactory.getFtpClient(ftpServer, ftpPort, ftpUser, ftpPassword)) {
+             FtpClient ftpClient = outputProcessorFactory.getFtpClient()) {
             List<ViolationDataSet> violationDataSets = listingValidationResult.getViolationDataSets();
             violationWriterCsv.processViolations(violationDataSets);
 

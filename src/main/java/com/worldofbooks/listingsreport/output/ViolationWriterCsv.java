@@ -7,7 +7,6 @@ import org.apache.commons.csv.CSVPrinter;
 
 import javax.validation.ConstraintViolation;
 import java.io.BufferedWriter;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class ViolationWriterCsv implements ViolationProcessor, Closeable {
+public class ViolationWriterCsv implements AutoCloseable {
 
     private final BufferedWriter writer;
     private final CSVPrinter csvPrinter;
@@ -28,7 +27,6 @@ public class ViolationWriterCsv implements ViolationProcessor, Closeable {
             .withHeader("ListingId", "MarketplaceName", "InvalidField"));
     }
 
-    @Override
     public void processViolations(List<ViolationDataSet> violationDataSets) {
         violationDataSets.forEach(violationDataSet -> {
             Set<ConstraintViolation<Listing>> violations = violationDataSet.getViolations();

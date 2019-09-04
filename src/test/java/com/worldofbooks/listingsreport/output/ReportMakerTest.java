@@ -60,7 +60,7 @@ public class ReportMakerTest {
     @Autowired
     private ViolationWriterCsv violationWriterCsv;
     @Autowired
-    private FileHandlerJsonImpl fileHandlerJson;
+    private FileHandlerJson fileHandlerJson;
     @Autowired
     private FtpClient ftpClient;
     @Autowired
@@ -78,7 +78,7 @@ public class ReportMakerTest {
     public void setup() throws IOException {
         reportMaker = new ReportMaker(databaseHandler, listingRepository, apiHandler, listingValidator, reportProcessor, outputProcessorFactory);
         when(outputProcessorFactory.getFileHandlerJson(any())).thenReturn(fileHandlerJson);
-        when(outputProcessorFactory.getFtpClient(any(), any(), any(), any())).thenReturn(ftpClient);
+        when(outputProcessorFactory.getFtpClient()).thenReturn(ftpClient);
         when(outputProcessorFactory.getViolationWriterCsv(any())).thenReturn(violationWriterCsv);
     }
 
@@ -177,7 +177,6 @@ public class ReportMakerTest {
             .close();
         verifyNoMoreInteractions(ftpClient);
 
-
         //UncheckedIOException
         localReportPath = Paths.get("dasuighdfuigdrgji443j5iju9aweifdlsADJKFASDgjhhrghfg");
         reportMaker.generateListingReport(importLogPath, localReportPath, ftpPath);
@@ -224,8 +223,8 @@ public class ReportMakerTest {
 
         @Bean(name = "TestFileHandlerJsonImplConfiguration")
         @Primary
-        public FileHandlerJsonImpl fileHandlerJson() {
-            return Mockito.mock(FileHandlerJsonImpl.class);
+        public FileHandlerJson fileHandlerJson() {
+            return Mockito.mock(FileHandlerJson.class);
         }
 
         @Bean(name = "TestFtpClientConfiguration")
