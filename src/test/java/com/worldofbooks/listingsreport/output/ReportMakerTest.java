@@ -26,7 +26,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -84,7 +83,7 @@ public class ReportMakerTest {
     }
 
     @Test(expected = UncheckedIOException.class)
-    public void generateListingReport() throws IOException {
+    public void generateListingReportThenAgainWhenFileDoesNotExist() throws IOException {
 //for databaseHandler.saveReferences(listingDataSet.getReferenceDataSet());
         ListingDataSet listingDataSet = new ListingDataSet();
         ReferenceDataSet referenceDataSet = new ReferenceDataSet();
@@ -178,6 +177,8 @@ public class ReportMakerTest {
             .close();
         verifyNoMoreInteractions(ftpClient);
 
+
+        //UncheckedIOException
         localReportPath = Paths.get("dasuighdfuigdrgji443j5iju9aweifdlsADJKFASDgjhhrghfg");
         reportMaker.generateListingReport(importLogPath, localReportPath, ftpPath);
     }

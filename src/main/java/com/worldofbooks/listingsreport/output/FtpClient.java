@@ -26,7 +26,13 @@ public class FtpClient implements AutoCloseable {
     }
 
     public void sendToFtp(Path pathToSend, String ftpPath) throws IOException {
-        if (ftp == null) {
+        if (ftp == null ) {
+            open();
+        }
+
+        try {
+            ftp.sendNoOp();
+        } catch (IOException e) {
             open();
         }
 
@@ -43,7 +49,6 @@ public class FtpClient implements AutoCloseable {
 
         int reply = ftp.getReplyCode();
         if (!FTPReply.isPositiveCompletion(reply)) {
-            close();
             throw new IOException("Can't connect to FTP Server");
         }
         ftp.login(user, password);

@@ -51,8 +51,25 @@ public class FtpClientTest {
 
     @Test
     public void sendToFtp() throws IOException {
-        Path pathToSend = TEMPORARY_FOLDER.newFile("ftpTest.txt").toPath();
+        Path pathToSend = TEMPORARY_FOLDER.newFile("sendToFtpTest.txt").toPath();
         ftpClient.sendToFtp(pathToSend, "/uploadTest.txt");
+        ftpClient.close();
+        Path pathToSend2 = TEMPORARY_FOLDER.newFile("sendToFtpTest2.txt").toPath();
+        ftpClient.sendToFtp(pathToSend2, "/uploadTest.txt");
         assertTrue(fakeFtpServer.getFileSystem().exists("/uploadTest.txt"));
     }
+
+    @Test(expected = IOException.class)
+    public void sendToFtpNull() throws IOException{
+        ftpClient = new FtpClient("badServer", fakeFtpServer.getServerControlPort(), "ftpUser", "ftpPassword");
+        Path pathToSend = TEMPORARY_FOLDER.newFile("ftpTest.txt").toPath();
+        ftpClient.sendToFtp(pathToSend, "/uploadTest.txt");
+    }
+
+    @Test
+    public void closeNull() throws IOException{
+        ftpClient = new FtpClient("badServer", fakeFtpServer.getServerControlPort(), "ftpUser", "ftpPassword");
+        ftpClient.close();
+    }
+
 }

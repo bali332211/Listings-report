@@ -47,7 +47,7 @@ public class ApiHandlerTest {
     }
 
     @Test
-    public void getEntitiesFromAPI() throws IOException {
+    public void getListingDataSetFromApi() throws IOException {
         Listing listing = new ListingBuilder("testId", "testTitle")
             .listingPrice(15)
             .listingStatus(4)
