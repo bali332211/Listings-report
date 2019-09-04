@@ -2,7 +2,9 @@ package com.worldofbooks.listingsreport.output;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockftpserver.fake.FakeFtpServer;
 import org.mockftpserver.fake.UserAccount;
 import org.mockftpserver.fake.filesystem.DirectoryEntry;
@@ -12,7 +14,6 @@ import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.junit.Assert.assertTrue;
 
@@ -21,6 +22,9 @@ public class FtpClientTest {
     private FakeFtpServer fakeFtpServer;
 
     private FtpClient ftpClient;
+
+    @ClassRule
+    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
 
     @Before
     public void setup() throws IOException {
@@ -47,8 +51,8 @@ public class FtpClientTest {
 
     @Test
     public void sendToFtp() throws IOException {
-        Path path = Paths.get("ftpTest.txt");
-        ftpClient.sendToFtp(path, "/uploadTest.txt");
+        Path pathToSend = TEMPORARY_FOLDER.newFile("ftpTest.txt").toPath();
+        ftpClient.sendToFtp(pathToSend, "/uploadTest.txt");
         assertTrue(fakeFtpServer.getFileSystem().exists("/uploadTest.txt"));
     }
 }

@@ -8,6 +8,7 @@ import com.worldofbooks.listingsreport.api.Status;
 import com.worldofbooks.listingsreport.api.ListingDataSet;
 import com.worldofbooks.listingsreport.database.ReferenceDataSet;
 import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +33,16 @@ import static org.junit.Assert.assertThat;
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class ListingValidatorImplTest {
 
-    @Autowired
+
     private ListingValidator listingValidator;
 
     @Autowired
     private Validator validator;
+
+    @Before
+    public void setup() {
+        listingValidator = new ListingValidatorImpl(validator);
+    }
 
     @Test
     public void validateListings() {
@@ -102,10 +108,5 @@ public class ListingValidatorImplTest {
             return factory.getValidator();
         }
 
-        @Bean(name = "TestListingValidatorConfiguration")
-        @Primary
-        public ListingValidator listingValidator() {
-            return new ListingValidatorImpl(validator());
-        }
     }
 }

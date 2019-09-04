@@ -103,5 +103,4 @@ public class ListingValidatorImpl implements ListingValidator {
         return Arrays.stream(references).anyMatch(i -> i == listingReference);
     }
 
-
 }

@@ -82,7 +82,6 @@ public class ViolationWriterCsv implements ViolationProcessor, Closeable {
         csvPrinter.close();
     }
 
-
     private static final class ViolationDto {
         private final String listingId;
         private final int marketplaceName;

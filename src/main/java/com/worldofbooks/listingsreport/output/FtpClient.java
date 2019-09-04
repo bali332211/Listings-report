@@ -25,13 +25,13 @@ public class FtpClient implements AutoCloseable {
         this.password = password;
     }
 
-    public void sendToFtp(Path localReportPath, String ftpPath) throws IOException {
+    public void sendToFtp(Path pathToSend, String ftpPath) throws IOException {
         if (ftp == null) {
             open();
         }
 
-        File file = new File(localReportPath.toUri());
-        uploadToFtp(file, ftpPath);
+        File fileToUpload = new File(pathToSend.toUri());
+        uploadToFtp(fileToUpload, ftpPath);
     }
 
     public void open() throws IOException {
@@ -56,8 +56,8 @@ public class FtpClient implements AutoCloseable {
         }
     }
 
-    private void uploadToFtp(File file, String ftpPath) throws IOException {
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+    private void uploadToFtp(File fileToUpload, String ftpPath) throws IOException {
+        try (FileInputStream fileInputStream = new FileInputStream(fileToUpload)) {
             ftp.storeFile(ftpPath, fileInputStream);
         }
     }

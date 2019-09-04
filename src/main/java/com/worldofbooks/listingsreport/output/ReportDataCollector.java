@@ -50,45 +50,47 @@ public class ReportDataCollector implements ReportProcessor {
     }
 
     private List<MonthlyReport> getMonthlyReports(List<Listing> listings, int ebayId, int amazonId) {
-        List<Listing> listingsWithUploadTime = listings.stream()
-            .filter(listing -> listing.getUploadTime() != null)
-            .sorted(new SortByUploadTime())
-            .collect(Collectors.toList());
+        List<Listing> listingsWithUploadTime = getListingsWithUploadTime(listings);
 
         List<MonthlyReport> monthlyReports = new ArrayList<>();
-
         List<Listing> listingsOfCurrentMonth = new ArrayList<>();
-        int lastYear = -1;
-        int lastMonth = -1;
+
+        int previousYear = -1;
+        int previousMonth = -1;
 
         for (Listing listing : listingsWithUploadTime) {
             LocalDate uploadTime = listing.getUploadTime();
-            if (uploadTime != null) {
-                int currentYear = uploadTime.getYear();
-                int currentMonth = uploadTime.getMonthValue();
+            int currentYear = uploadTime.getYear();
+            int currentMonth = uploadTime.getMonthValue();
 
-                if (lastYear == -1) {
-                    lastYear = currentYear;
-                    lastMonth = currentMonth;
-                }
-
-                if (lastYear != currentYear || lastMonth != currentMonth) {
-                    MonthlyReport monthlyReport = new MonthlyReport(lastYear + "/" + lastMonth);
-                    monthlyReport.updateMarketPlaceDataWithListing(listingsOfCurrentMonth, ebayId, amazonId);
-                    monthlyReports.add(monthlyReport);
-
-                    listingsOfCurrentMonth.clear();
-                }
-                listingsOfCurrentMonth.add(listing);
-                lastYear = currentYear;
-                lastMonth = currentMonth;
+            if (previousYear == -1) {
+                previousYear = currentYear;
+                previousMonth = currentMonth;
             }
+
+            if (previousYear != currentYear || previousMonth != currentMonth) {
+                updateMonthlyReportsWithListingsOfCurrentMonth(monthlyReports, listingsOfCurrentMonth, previousYear + "/" + previousMonth, ebayId, amazonId);
+                listingsOfCurrentMonth.clear();
+            }
+            listingsOfCurrentMonth.add(listing);
+            previousYear = currentYear;
+            previousMonth = currentMonth;
         }
-        MonthlyReport monthlyReport = new MonthlyReport(lastYear + "/" + lastMonth);
+        updateMonthlyReportsWithListingsOfCurrentMonth(monthlyReports, listingsOfCurrentMonth, previousYear + "/" + previousMonth, ebayId, amazonId);
+        return monthlyReports;
+    }
+
+    private void updateMonthlyReportsWithListingsOfCurrentMonth(List<MonthlyReport> monthlyReports, List<Listing> listingsOfCurrentMonth, String monthName, int ebayId, int amazonId) {
+        MonthlyReport monthlyReport = new MonthlyReport(monthName);
         monthlyReport.updateMarketPlaceDataWithListing(listingsOfCurrentMonth, ebayId, amazonId);
         monthlyReports.add(monthlyReport);
+    }
 
-        return monthlyReports;
+    private List<Listing> getListingsWithUploadTime(List<Listing> listings) {
+        return listings.stream()
+            .filter(listing -> listing.getUploadTime() != null)
+            .sorted(new SortByUploadTime())
+            .collect(Collectors.toList());
     }
 
     public static final class SortByUploadTime implements Comparator<Listing> {

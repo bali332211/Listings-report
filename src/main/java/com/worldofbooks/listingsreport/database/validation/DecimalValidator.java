@@ -18,7 +18,4 @@ public class DecimalValidator implements
 
         return decimalLength == 2;
     }
-
-
-
 }

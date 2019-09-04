@@ -102,12 +102,6 @@ public class ReportDataCollectorTest {
     @Configuration
     public static class Config {
 
-        @Bean(name = "TestFileHandlerJsonConfiguration")
-        @Primary
-        public FileHandlerJson fileHandlerJson() {
-            return Mockito.mock(FileHandlerJson.class);
-        }
-
         @Bean(name = "TestMarketplaceRepositoryConfiguration")
         @Primary
         public MarketplaceRepository marketplaceRepository() {

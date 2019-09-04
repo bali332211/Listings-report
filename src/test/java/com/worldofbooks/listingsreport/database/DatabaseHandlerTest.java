@@ -53,5 +53,4 @@ public class DatabaseHandlerTest {
         assertTrue(marketplaceRepository.existsById(2));
 
     }
-
 }

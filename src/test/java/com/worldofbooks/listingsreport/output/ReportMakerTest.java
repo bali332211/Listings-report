@@ -11,7 +11,6 @@ import com.worldofbooks.listingsreport.database.ReferenceDataSet;
 import com.worldofbooks.listingsreport.database.validation.ListingValidationResult;
 import com.worldofbooks.listingsreport.database.validation.ListingValidator;
 import com.worldofbooks.listingsreport.database.validation.ViolationDataSet;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,12 +18,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -74,6 +75,8 @@ public class ReportMakerTest {
 
     @Test
     public void generateListingReport() throws IOException {
+        ReflectionTestUtils.setField(ReportMaker.class, "ftpPort", "324");
+
         ListingDataSet listingDataSet = new ListingDataSet();
         ReferenceDataSet referenceDataSet = new ReferenceDataSet();
         Status status = new Status();
@@ -93,7 +96,6 @@ public class ReportMakerTest {
         listingValidationResult.getViolationDataSets().get(0).setListing(listingForViolationDataSet);
         when(listingValidator.validateListings(any(ListingDataSet.class))).thenReturn(listingValidationResult);
 //        databaseHandler.saveEntities(validatedListings, listingRepository);
-
 
 //        violationWriterCsv.processViolations(violationDataSets);
         ReportDto reportDto = new ReportDto();
