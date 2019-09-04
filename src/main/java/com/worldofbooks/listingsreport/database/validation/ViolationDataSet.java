@@ -24,11 +24,23 @@ public class ViolationDataSet {
         return listing;
     }
 
+    public void setListing(Listing listing) {
+        this.listing = listing;
+    }
+
     public Set<ConstraintViolation<Listing>> getViolations() {
         return violations;
     }
 
+    public void setViolations(Set<ConstraintViolation<Listing>> violations) {
+        this.violations = violations;
+    }
+
     public List<String> getReferenceViolations() {
         return referenceViolations;
+    }
+
+    public void setReferenceViolations(List<String> referenceViolations) {
+        this.referenceViolations = referenceViolations;
     }
 }

@@ -1,7 +1,5 @@
 package com.worldofbooks.listingsreport.output;
 
-import com.worldofbooks.listingsreport.ListingBuilder;
-import com.worldofbooks.listingsreport.api.Listing;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -14,7 +12,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,9 +20,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class FileHandlerJsonImplTest {
-
 
     @ClassRule
     public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
@@ -49,8 +44,6 @@ public class FileHandlerJsonImplTest {
             }
             assertThat(lines.size(), is(1));
         }
-
-
     }
 
 }

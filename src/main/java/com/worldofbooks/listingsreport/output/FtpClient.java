@@ -34,7 +34,7 @@ public class FtpClient implements AutoCloseable {
         uploadToFtp(file, ftpPath);
     }
 
-    private void open() throws IOException {
+    public void open() throws IOException {
         ftp = new FTPClient();
 
         ftp.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));

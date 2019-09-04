@@ -69,7 +69,6 @@ public class ReportMaker {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-
         try {
             Files.delete(localReportPath);
         } catch (IOException e) {
