@@ -148,6 +148,30 @@ class MarketplaceData {
     public String getBestListerEmail() {
         return bestListerEmail;
     }
+
+    public void setTotalEbayListingCount(int totalEbayListingCount) {
+        this.totalEbayListingCount = totalEbayListingCount;
+    }
+
+    public void setTotalEbayListingPrice(double totalEbayListingPrice) {
+        this.totalEbayListingPrice = totalEbayListingPrice;
+    }
+
+    public void setTotalAmazonListingCount(double totalAmazonListingCount) {
+        this.totalAmazonListingCount = totalAmazonListingCount;
+    }
+
+    public void setAverageEbayListingPrice(double averageEbayListingPrice) {
+        this.averageEbayListingPrice = averageEbayListingPrice;
+    }
+
+    public void setTotalAmazonListingPrice(double totalAmazonListingPrice) {
+        this.totalAmazonListingPrice = totalAmazonListingPrice;
+    }
+
+    public void setAverageAmazonListingPrice(double averageAmazonListingPrice) {
+        this.averageAmazonListingPrice = averageAmazonListingPrice;
+    }
 }
 
 class MonthlyReport extends MarketplaceData {

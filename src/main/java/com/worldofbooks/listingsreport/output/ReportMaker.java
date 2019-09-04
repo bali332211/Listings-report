@@ -65,7 +65,6 @@ public class ReportMaker {
             FileHandlerJson fileHandlerJson = new FileHandlerJsonImpl(localReportPath);
             fileHandlerJson.handleReportData(reportDto);
 
-            ftpClient.open();
             ftpClient.sendToFtp(localReportPath, ftpPath);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

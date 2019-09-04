@@ -51,5 +51,4 @@ public class FtpClientTest {
         ftpClient.sendToFtp(path, "/uploadTest.txt");
         assertTrue(fakeFtpServer.getFileSystem().exists("/uploadTest.txt"));
     }
-
 }

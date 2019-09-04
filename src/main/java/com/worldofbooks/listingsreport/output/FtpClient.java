@@ -26,22 +26,26 @@ public class FtpClient implements AutoCloseable {
     }
 
     public void sendToFtp(Path localReportPath, String ftpPath) throws IOException {
+        if (ftp == null) {
+            open();
+        }
+
         File file = new File(localReportPath.toUri());
         uploadToFtp(file, ftpPath);
     }
 
-    public void open() throws IOException {
+    private void open() throws IOException {
         ftp = new FTPClient();
 
         ftp.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
 
         ftp.connect(server, port);
+
         int reply = ftp.getReplyCode();
         if (!FTPReply.isPositiveCompletion(reply)) {
-            ftp.disconnect();
+            close();
             throw new IOException("Can't connect to FTP Server");
         }
-
         ftp.login(user, password);
     }
 
