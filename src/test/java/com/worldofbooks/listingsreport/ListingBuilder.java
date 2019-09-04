@@ -70,9 +70,9 @@ public class ListingBuilder {
 
     public Listing createListing() {
         return new Listing(
-                id, title, description,
-                locationId, listingPrice,
-                currency, quantity, listingStatus,
-                marketplace, uploadTime, ownerEmailAddress);
+            id, title, description,
+            locationId, listingPrice,
+            currency, quantity, listingStatus,
+            marketplace, uploadTime, ownerEmailAddress);
     }
 }

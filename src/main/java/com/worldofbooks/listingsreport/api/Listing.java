@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Entity
-@Table(name="listings")
+@Table(name = "listings")
 public class Listing {
 
     @Id

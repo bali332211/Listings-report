@@ -26,7 +26,7 @@ public class FtpClient implements AutoCloseable {
     }
 
     public void sendToFtp(Path pathToSend, String ftpPath) throws IOException {
-        if (ftp == null ) {
+        if (ftp == null) {
             open();
         }
 

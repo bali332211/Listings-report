@@ -67,7 +67,7 @@ public class ListingValidatorImpl implements ListingValidator {
         if (!isStatusReferenceValid) {
             referenceViolations.add("listingStatus");
         }
-        if(!isMarketplaceReferenceValid) {
+        if (!isMarketplaceReferenceValid) {
             referenceViolations.add("marketplace");
         }
         return referenceViolations;

@@ -84,7 +84,6 @@ public class ReportMakerTest {
 
     @Test(expected = UncheckedIOException.class)
     public void generateListingReportThenAgainWhenFileDoesNotExist() throws IOException {
-//for databaseHandler.saveReferences(listingDataSet.getReferenceDataSet());
         ListingDataSet listingDataSet = new ListingDataSet();
         ReferenceDataSet referenceDataSet = new ReferenceDataSet();
         Status status = new Status();
@@ -93,8 +92,6 @@ public class ReportMakerTest {
         listingDataSet.setReferenceDataSet(referenceDataSet);
         when(apiHandler.getListingDataSetFromApi()).thenReturn(listingDataSet);
 
-//for databaseHandler.saveEntities(validatedListings, listingRepository);
-//    violationWriterCsv.processViolations(violationDataSets);
         ListingValidationResult listingValidationResult = new ListingValidationResult();
         Listing listingResult = new Listing();
         listingResult.setDescription("validatedListingsArg");
@@ -105,8 +102,6 @@ public class ReportMakerTest {
         listingValidationResult.getViolationDataSets().get(0).setListing(listingForViolationDataSet);
         when(listingValidator.validateListings(any(ListingDataSet.class))).thenReturn(listingValidationResult);
 
-//for fileHandlerJson.handleReportData(reportDto);
-//    ftpClient.sendToFtp(localReportPath, ftpPath);
         ReportDto reportDto = new ReportDto();
         reportDto.setBestListerEmail("fileHandlerReportDtoArg");
         when(reportProcessor.collectReportData(any())).thenReturn(reportDto);

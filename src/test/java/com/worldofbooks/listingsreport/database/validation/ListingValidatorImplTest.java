@@ -47,28 +47,28 @@ public class ListingValidatorImplTest {
     @Test
     public void validateListings() {
         Listing listingAllowed = new ListingBuilder("6022bade-659e-448a-a9fc-f588609f9b6b", "testTitle")
-                .listingPrice(15.72)
-                .listingStatus(4)
-                .locationId("testLocationId")
-                .marketplace(2)
-                .currency("USD")
-                .description("testDescription")
-                .uploadTime(LocalDate.of(2018, 10, 2))
-                .ownerEmailAddress("testEmail@email.com")
-                .quantity(1)
-                .createListing();
+            .listingPrice(15.72)
+            .listingStatus(4)
+            .locationId("testLocationId")
+            .marketplace(2)
+            .currency("USD")
+            .description("testDescription")
+            .uploadTime(LocalDate.of(2018, 10, 2))
+            .ownerEmailAddress("testEmail@email.com")
+            .quantity(1)
+            .createListing();
 
         Listing listingNotAllowed = new ListingBuilder("testId", null)     //UUID violation, null violation
-                .listingPrice(15)                                                   //2 decimals violation
-                .listingStatus(3)                                                   //reference violation
-                .locationId("testLocationId2")                                      //reference violation
-                .marketplace(7)                                                     //reference violation
-                .currency("testCurrency")                                           //length violation
-                .description(null)                                                  //null violation
-                .uploadTime(LocalDate.of(2018, 10, 2))
-                .ownerEmailAddress("testEmailemail.com")                            //email form violation
-                .quantity(0)                                                        // > 0 violation
-                .createListing();
+            .listingPrice(15)                                                   //2 decimals violation
+            .listingStatus(3)                                                   //reference violation
+            .locationId("testLocationId2")                                      //reference violation
+            .marketplace(7)                                                     //reference violation
+            .currency("testCurrency")                                           //length violation
+            .description(null)                                                  //null violation
+            .uploadTime(LocalDate.of(2018, 10, 2))
+            .ownerEmailAddress("testEmailemail.com")                            //email form violation
+            .quantity(0)                                                        // > 0 violation
+            .createListing();
 
         Status status = new Status();
         status.setId(4);
@@ -92,7 +92,7 @@ public class ListingValidatorImplTest {
         assertThat(violationDataSets.size(), Matchers.is(1));
         ViolationDataSet violationDataSetFirst = violationDataSets.get(0);
         assertThat(violationDataSetFirst.getViolations().size(), Matchers.is(7));
-        assertThat( violationDataSetFirst.getReferenceViolations().size(), Matchers.is(3));
+        assertThat(violationDataSetFirst.getReferenceViolations().size(), Matchers.is(3));
         Listing listingViolating = violationDataSetFirst.getListing();
         assertThat(listingViolating.getId(), Matchers.is("testId"));
         assertThat(listingViolating.getListingPrice(), Matchers.is(15D));

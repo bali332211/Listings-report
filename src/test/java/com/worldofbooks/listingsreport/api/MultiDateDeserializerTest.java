@@ -44,10 +44,10 @@ public class MultiDateDeserializerTest {
     private JsonNode jsonNode;
 
     private static final String[] DATE_FORMATS = new String[]{
-            "M/d/yyyy",
-            "M/dd/yyyy",
-            "MM/d/yyyy",
-            "MM/dd/yyyy"
+        "M/d/yyyy",
+        "M/dd/yyyy",
+        "MM/d/yyyy",
+        "MM/dd/yyyy"
     };
 
     @Before
@@ -61,10 +61,10 @@ public class MultiDateDeserializerTest {
         when(objectCodec.readTree(any())).thenReturn(jsonNode);
 
         List<String> datesAllowed = Arrays.asList(
-                "2/2/2018",
-                "2/22/2018",
-                "12/22/2018",
-                "12/2/2018");
+            "2/2/2018",
+            "2/22/2018",
+            "12/22/2018",
+            "12/2/2018");
 
         for (String date : datesAllowed) {
             when(jsonNode.textValue()).thenReturn(date);

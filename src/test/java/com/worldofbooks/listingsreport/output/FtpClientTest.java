@@ -60,14 +60,14 @@ public class FtpClientTest {
     }
 
     @Test(expected = IOException.class)
-    public void sendToFtpNull() throws IOException{
+    public void sendToFtpNull() throws IOException {
         ftpClient = new FtpClient("badServer", fakeFtpServer.getServerControlPort(), "ftpUser", "ftpPassword");
         Path pathToSend = TEMPORARY_FOLDER.newFile("ftpTest.txt").toPath();
         ftpClient.sendToFtp(pathToSend, "/uploadTest.txt");
     }
 
     @Test
-    public void closeNull() throws IOException{
+    public void closeNull() throws IOException {
         ftpClient = new FtpClient("badServer", fakeFtpServer.getServerControlPort(), "ftpUser", "ftpPassword");
         ftpClient.close();
     }

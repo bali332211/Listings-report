@@ -28,11 +28,11 @@ public class ListingsreportApplication implements CommandLineRunner {
             reportMaker.generateListingReport(importLogPath, localReportPath, args[2]);
             System.out.println("Report generated");
         } else {
-			System.out.println("Missing parameter(s):");
-			System.out.println("import_log_path");
-			System.out.println("local_report_path");
-			System.out.println("ftp_report_path");
-		}
+            System.out.println("Missing parameter(s):");
+            System.out.println("import_log_path");
+            System.out.println("local_report_path");
+            System.out.println("ftp_report_path");
+        }
 
     }
 }

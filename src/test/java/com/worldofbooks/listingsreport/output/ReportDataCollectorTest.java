@@ -45,40 +45,40 @@ public class ReportDataCollectorTest {
         when(marketplaceRepository.findByMarketplaceName(isNull())).thenReturn(marketplace);
 
         Listing listingAllowed = new ListingBuilder("6022bade-659e-448a-a9fc-f588609f9b6b", "testTitle")
-                .listingPrice(19.12)
-                .listingStatus(4)
-                .locationId("testLocationId")
-                .marketplace(1)
-                .currency("USD")
-                .description("testDescription")
-                .uploadTime(LocalDate.of(2018, 10, 2))
-                .ownerEmailAddress("testEmail@email.com")
-                .quantity(1)
-                .createListing();
+            .listingPrice(19.12)
+            .listingStatus(4)
+            .locationId("testLocationId")
+            .marketplace(1)
+            .currency("USD")
+            .description("testDescription")
+            .uploadTime(LocalDate.of(2018, 10, 2))
+            .ownerEmailAddress("testEmail@email.com")
+            .quantity(1)
+            .createListing();
 
         Listing listingAllowed2 = new ListingBuilder("a9fa91fe-4710-4991-9b66-547d522ef9f6", "testTitle")
-                .listingPrice(20.76)
-                .listingStatus(4)
-                .locationId("testLocationId")
-                .marketplace(1)
-                .currency("USD")
-                .description("testDescription")
-                .uploadTime(LocalDate.of(2018, 10, 3))
-                .ownerEmailAddress("testEmail@email.com")
-                .quantity(1)
-                .createListing();
+            .listingPrice(20.76)
+            .listingStatus(4)
+            .locationId("testLocationId")
+            .marketplace(1)
+            .currency("USD")
+            .description("testDescription")
+            .uploadTime(LocalDate.of(2018, 10, 3))
+            .ownerEmailAddress("testEmail@email.com")
+            .quantity(1)
+            .createListing();
 
         Listing listingAllowed3 = new ListingBuilder("a9fa91fe-4710-4991-9b66-547d522ef9f6", "testTitle")
-                .listingPrice(50.12)
-                .listingStatus(4)
-                .locationId("testLocationId")
-                .marketplace(1)
-                .currency("USD")
-                .description("testDescription")
-                .uploadTime(LocalDate.of(2018, 11, 2))
-                .ownerEmailAddress("another@email.com")
-                .quantity(1)
-                .createListing();
+            .listingPrice(50.12)
+            .listingStatus(4)
+            .locationId("testLocationId")
+            .marketplace(1)
+            .currency("USD")
+            .description("testDescription")
+            .uploadTime(LocalDate.of(2018, 11, 2))
+            .ownerEmailAddress("another@email.com")
+            .quantity(1)
+            .createListing();
 
         ReportDto reportDto = reportDataCollector.collectReportData(Arrays.asList(listingAllowed, listingAllowed2, listingAllowed3));
 

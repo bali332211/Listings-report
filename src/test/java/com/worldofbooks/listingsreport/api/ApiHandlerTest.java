@@ -89,7 +89,7 @@ public class ApiHandlerTest {
         assertThat(locationFromReferences.getId(), is("testLocationId"));
     }
 
-    private void mockServerExpectRequestTo(String url, List<?> responseList) throws IOException{
+    private void mockServerExpectRequestTo(String url, List<?> responseList) throws IOException {
         mockServer.expect(requestTo(url))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess(TestService.convertToJson(responseList), MediaType.APPLICATION_JSON));
