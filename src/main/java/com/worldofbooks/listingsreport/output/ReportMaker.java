@@ -26,6 +26,7 @@ public class ReportMaker {
     private ApiHandler apiHandler;
     private ListingValidator listingValidator;
     private ReportProcessor reportProcessor;
+    private OutputProcessorFactory outputProcessorFactory;
 
     @Value(value = "${ftp.server}")
     private String ftpServer;
@@ -38,12 +39,13 @@ public class ReportMaker {
 
     @Autowired
     public ReportMaker(DatabaseHandler databaseHandler, ListingRepository listingRepository,
-                       ApiHandler apiHandler, ListingValidator listingValidator, ReportProcessor reportProcessor) {
+                       ApiHandler apiHandler, ListingValidator listingValidator, ReportProcessor reportProcessor, OutputProcessorFactory outputProcessorFactory) {
         this.databaseHandler = databaseHandler;
         this.listingRepository = listingRepository;
         this.apiHandler = apiHandler;
         this.listingValidator = listingValidator;
         this.reportProcessor = reportProcessor;
+        this.outputProcessorFactory = outputProcessorFactory;
     }
 
     @Transactional
@@ -55,20 +57,21 @@ public class ReportMaker {
 
         List<Listing> validatedListings = listingValidationResult.getValidatedListings();
         databaseHandler.saveEntities(validatedListings, listingRepository);
+        ReportDto reportDto = reportProcessor.collectReportData(validatedListings);
 
-        try (ViolationWriterCsv violationWriterCsv = new ViolationWriterCsv(importLogPath);
-             FtpClient ftpClient = new FtpClient(ftpServer, Integer.parseInt(ftpPort), ftpUser, ftpPassword)) {
+        try (ViolationWriterCsv violationWriterCsv = outputProcessorFactory.getViolationWriterCsv(importLogPath);
+             FtpClient ftpClient = outputProcessorFactory.getFtpClient(ftpServer, ftpPort, ftpUser, ftpPassword)) {
             List<ViolationDataSet> violationDataSets = listingValidationResult.getViolationDataSets();
             violationWriterCsv.processViolations(violationDataSets);
 
-            ReportDto reportDto = reportProcessor.collectReportData(validatedListings);
-            FileHandlerJson fileHandlerJson = new FileHandlerJsonImpl(localReportPath);
+            FileHandlerJson fileHandlerJson = outputProcessorFactory.getFileHandlerJson(localReportPath);
             fileHandlerJson.handleReportData(reportDto);
 
             ftpClient.sendToFtp(localReportPath, ftpPath);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
         try {
             Files.delete(localReportPath);
         } catch (IOException e) {

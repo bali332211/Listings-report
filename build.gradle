@@ -23,6 +23,7 @@ pitest {
 					 'com.worldofbooks.listingsreport.output.FtpClient',
 					 'com.worldofbooks.listingsreport.output.ViolationWriterCsv',
 					 'com.worldofbooks.listingsreport.output.FileHandlerJsonImpl',
+					 'com.worldofbooks.listingsreport.output.ReportMaker',
 					 'com.worldofbooks.listingsreport.output.ReportDto']
 	targetTests = ['com.worldofbooks.listingsreport.api.**',
 				   'com.worldofbooks.listingsreport.database.**',

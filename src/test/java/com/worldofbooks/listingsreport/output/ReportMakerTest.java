@@ -12,13 +12,14 @@ import com.worldofbooks.listingsreport.database.validation.ListingValidationResu
 import com.worldofbooks.listingsreport.database.validation.ListingValidator;
 import com.worldofbooks.listingsreport.database.validation.ViolationDataSet;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -28,6 +29,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -62,21 +64,28 @@ public class ReportMakerTest {
     private FileHandlerJsonImpl fileHandlerJson;
     @Autowired
     private FtpClient ftpClient;
+    @Autowired
+    private OutputProcessorFactory outputProcessorFactory;
 
     @Captor
     private ArgumentCaptor<ArrayList<ViolationDataSet>> violationDataSetsCaptor;
     @Captor
     private ArgumentCaptor<ArrayList<Listing>> listingsCaptor;
 
+    @ClassRule
+    public static final TemporaryFolder TEMPORARY_FOLDER = new TemporaryFolder();
+
     @Before
-    public void setup() {
-        reportMaker = new ReportMaker(databaseHandler, listingRepository, apiHandler, listingValidator, reportProcessor);
+    public void setup() throws IOException {
+        reportMaker = new ReportMaker(databaseHandler, listingRepository, apiHandler, listingValidator, reportProcessor, outputProcessorFactory);
+        when(outputProcessorFactory.getFileHandlerJson(any())).thenReturn(fileHandlerJson);
+        when(outputProcessorFactory.getFtpClient(any(), any(), any(), any())).thenReturn(ftpClient);
+        when(outputProcessorFactory.getViolationWriterCsv(any())).thenReturn(violationWriterCsv);
     }
 
-    @Test
+    @Test(expected = UncheckedIOException.class)
     public void generateListingReport() throws IOException {
-        ReflectionTestUtils.setField(ReportMaker.class, "ftpPort", "324");
-
+//for databaseHandler.saveReferences(listingDataSet.getReferenceDataSet());
         ListingDataSet listingDataSet = new ListingDataSet();
         ReferenceDataSet referenceDataSet = new ReferenceDataSet();
         Status status = new Status();
@@ -84,28 +93,27 @@ public class ReportMakerTest {
         referenceDataSet.setStatuses(Collections.singletonList(status));
         listingDataSet.setReferenceDataSet(referenceDataSet);
         when(apiHandler.getListingDataSetFromApi()).thenReturn(listingDataSet);
-//       databaseHandler.saveReferences(listingDataSet.getReferenceDataSet());
 
+//for databaseHandler.saveEntities(validatedListings, listingRepository);
+//    violationWriterCsv.processViolations(violationDataSets);
         ListingValidationResult listingValidationResult = new ListingValidationResult();
         Listing listingResult = new Listing();
-        listingResult.setDescription("collectDataListingArg");
+        listingResult.setDescription("validatedListingsArg");
         listingValidationResult.setValidatedListings(Collections.singletonList(listingResult));
         listingValidationResult.setViolationDataSets(Collections.singletonList(new ViolationDataSet()));
         Listing listingForViolationDataSet = new Listing();
         listingForViolationDataSet.setDescription("listingForDataSetDescription");
         listingValidationResult.getViolationDataSets().get(0).setListing(listingForViolationDataSet);
         when(listingValidator.validateListings(any(ListingDataSet.class))).thenReturn(listingValidationResult);
-//        databaseHandler.saveEntities(validatedListings, listingRepository);
 
-//        violationWriterCsv.processViolations(violationDataSets);
+//for fileHandlerJson.handleReportData(reportDto);
+//    ftpClient.sendToFtp(localReportPath, ftpPath);
         ReportDto reportDto = new ReportDto();
         reportDto.setBestListerEmail("fileHandlerReportDtoArg");
         when(reportProcessor.collectReportData(any())).thenReturn(reportDto);
-//        fileHandlerJson.handleReportData(reportDto);
-//        ftpClient.sendToFtp(localReportPath, ftpPath);
 
         Path importLogPath = Paths.get("importLogPath");
-        Path localReportPath = Paths.get("localReportPath");
+        Path localReportPath = TEMPORARY_FOLDER.newFile("testReport.json").toPath();
         String ftpPath = "ftpPath";
         reportMaker.generateListingReport(importLogPath, localReportPath, ftpPath);
 
@@ -120,6 +128,12 @@ public class ReportMakerTest {
         List<Status> referenceStatuses = referenceArgumentValue.getStatuses();
         assertThat(referenceStatuses.size(), is(1));
         assertThat(referenceStatuses.get(0).getStatusName(), is("saveReferenceStatusArg"));
+
+        verify(databaseHandler, times(1))
+            .saveEntities(listingsCaptor.capture(), any());
+        List<Listing> validatedListingsArgumentValue = listingsCaptor.getValue();
+        assertThat(validatedListingsArgumentValue.size(), is(1));
+        assertThat(validatedListingsArgumentValue.get(0).getDescription(), is("validatedListingsArg"));
         verifyNoMoreInteractions(databaseHandler);
 
         ArgumentCaptor<ListingDataSet> listingDataSetArgument = ArgumentCaptor.forClass(ListingDataSet.class);
@@ -134,13 +148,15 @@ public class ReportMakerTest {
         List<ViolationDataSet> violationDataSetsArgumentValue = violationDataSetsCaptor.getValue();
         List<ViolationDataSet> violationDataSets = listingValidationResult.getViolationDataSets();
         assertThat(violationDataSetsArgumentValue, is(violationDataSets));
+        verify(violationWriterCsv, times(1))
+            .close();
         verifyNoMoreInteractions(violationWriterCsv);
 
         verify(reportProcessor, times(1))
             .collectReportData(listingsCaptor.capture());
         List<Listing> listingsArgumentValue = listingsCaptor.getValue();
         assertThat(listingsArgumentValue.size(), is(1));
-        assertThat(listingsArgumentValue.get(0).getDescription(), is("collectDataListingArg"));
+        assertThat(listingsArgumentValue.get(0).getDescription(), is("validatedListingsArg"));
         verifyNoMoreInteractions(reportProcessor);
 
         ArgumentCaptor<ReportDto> reportDtoArgument = ArgumentCaptor.forClass(ReportDto.class);
@@ -158,7 +174,12 @@ public class ReportMakerTest {
         assertThat(pathArgumentValue, is(localReportPath));
         String stringArgumentValue = stringArgument.getValue();
         assertThat(stringArgumentValue, is(ftpPath));
+        verify(ftpClient, times(1))
+            .close();
         verifyNoMoreInteractions(ftpClient);
+
+        localReportPath = Paths.get("dasuighdfuigdrgji443j5iju9aweifdlsADJKFASDgjhhrghfg");
+        reportMaker.generateListingReport(importLogPath, localReportPath, ftpPath);
     }
 
     @Configuration
@@ -205,10 +226,17 @@ public class ReportMakerTest {
         public FileHandlerJsonImpl fileHandlerJson() {
             return Mockito.mock(FileHandlerJsonImpl.class);
         }
+
         @Bean(name = "TestFtpClientConfiguration")
         @Primary
         public FtpClient ftpClient() {
             return Mockito.mock(FtpClient.class);
+        }
+
+        @Bean(name = "TestOutputProcessorFactoryConfiguration")
+        @Primary
+        public OutputProcessorFactory outputProcessorFactory() {
+            return Mockito.mock(OutputProcessorFactory.class);
         }
 
     }
