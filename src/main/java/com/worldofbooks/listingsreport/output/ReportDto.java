@@ -176,7 +176,7 @@ class MarketplaceData {
 
 class MonthlyReport extends MarketplaceData {
 
-    @JsonProperty("Month")
+    @SerializedName("Month")
     private String month;
 
     public MonthlyReport(String month) {
