@@ -1,6 +1,5 @@
 package com.worldofbooks.listingsreport.output;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import com.worldofbooks.listingsreport.api.Listing;
 
