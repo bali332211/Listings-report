@@ -4,7 +4,6 @@ import com.worldofbooks.listingsreport.api.Listing;
 import com.worldofbooks.listingsreport.api.Marketplace;
 import com.worldofbooks.listingsreport.database.MarketplaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -16,11 +15,6 @@ public class ReportDataCollector implements ReportProcessor {
 
     private MarketplaceRepository marketplaceRepository;
 
-    @Value(value = "${worldofbooks.ebay.name}")
-    private String ebayName;
-    @Value(value = "${worldofbooks.amazon.name}")
-    private String amazonName;
-
     @Autowired
     public ReportDataCollector(MarketplaceRepository marketplaceRepository) {
         this.marketplaceRepository = marketplaceRepository;
@@ -28,12 +22,25 @@ public class ReportDataCollector implements ReportProcessor {
 
     @Override
     public ReportDto collectReportData(List<Listing> listings) {
-        Marketplace ebay = marketplaceRepository.findByMarketplaceName(ebayName);
-        Marketplace amazon = marketplaceRepository.findByMarketplaceName(amazonName);
+        List<Marketplace> marketplaces = marketplaceRepository.findAll();
+
+        Marketplace ebay = getMarketplaceByName(marketplaces, "ebay");
+        Marketplace amazon = getMarketplaceByName(marketplaces, "amazon");
+
+        if (ebay == null || amazon == null) {
+            throw new IllegalArgumentException("Can't find marketplace by the name specified");
+        }
+
         int ebayId = ebay.getId();
         int amazonId = amazon.getId();
 
         return makeReportDto(listings, ebayId, amazonId);
+    }
+
+    private Marketplace getMarketplaceByName(List<Marketplace> marketplaces, String name) {
+        return marketplaces.stream()
+                .filter(marketplace -> marketplace.getMarketplaceName().equalsIgnoreCase(name))
+                .findFirst().orElse(null);
     }
 
     private ReportDto makeReportDto(List<Listing> listings, int ebayId, int amazonId) {
@@ -92,9 +99,9 @@ public class ReportDataCollector implements ReportProcessor {
 
     private List<Listing> getListingsWithUploadTime(List<Listing> listings) {
         return listings.stream()
-            .filter(listing -> listing.getUploadTime() != null)
-            .sorted(new SortByUploadTime())
-            .collect(Collectors.toList());
+                .filter(listing -> listing.getUploadTime() != null)
+                .sorted(new SortByUploadTime())
+                .collect(Collectors.toList());
     }
 
     public static final class SortByUploadTime implements Comparator<Listing> {
@@ -102,10 +109,6 @@ public class ReportDataCollector implements ReportProcessor {
         public int compare(Listing o1, Listing o2) {
             LocalDate uploadTime = o1.getUploadTime();
             LocalDate uploadTime2 = o2.getUploadTime();
-
-            if (uploadTime == null || uploadTime2 == null) {
-
-            }
 
             if (uploadTime.compareTo(uploadTime2) > 0) {
                 return 1;
