@@ -1,6 +1,5 @@
 package com.worldofbooks.listingsreport.output;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import com.worldofbooks.listingsreport.api.Listing;
 
@@ -176,7 +175,7 @@ class MarketplaceData {
 
 class MonthlyReport extends MarketplaceData {
 
-    @JsonProperty("Month")
+    @SerializedName("Month")
     private String month;
 
     public MonthlyReport(String month) {

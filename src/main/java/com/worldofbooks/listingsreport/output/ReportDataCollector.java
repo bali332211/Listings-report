@@ -113,6 +113,7 @@ public class ReportDataCollector implements ReportProcessor {
                 return -1;
             }
             return 0;
+
         }
     }
 }
